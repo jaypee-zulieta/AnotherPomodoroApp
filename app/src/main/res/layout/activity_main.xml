@@ -7,15 +7,29 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/sign_in_with_google_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <LinearLayout
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:text="Sign In With Google"
-        />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="100dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sign_in_with_google_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cornerRadius="5dp"
+            android:shadowRadius="300"
+            android:backgroundTint="@color/white"
+            android:text="Sign in with Google"
+            android:textColor="@color/black"/>
+
+
+
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
