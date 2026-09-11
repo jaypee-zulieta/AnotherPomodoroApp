@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "897231797465-32o5u0e00otl0colap8iir91fm1td50g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.jaypee.anotherpomodoroapp",
+            "certificate_hash": "95a8a39139632c0044565198cc8ca6df6dd9a49c"
+          }
+        },
+        {
           "client_id": "897231797465-pi7jne0ki0edjvv7r15uvql105faupni.apps.googleusercontent.com",
           "client_type": 3
         }

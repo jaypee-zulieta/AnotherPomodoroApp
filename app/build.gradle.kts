@@ -33,6 +33,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.credentials)
+    implementation(libs.credentials.play.services.auth)
+    implementation(libs.googleid.v120)
     implementation(libs.firebase.auth)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
