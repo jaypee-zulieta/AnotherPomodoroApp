@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,11 +14,18 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 import java.util.Objects;
 
 public class SignUpActivity extends AppCompatActivity {
+
+    private static final String TAG = "AnotherPomodoroApp";
+    FirebaseAuth firebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,10 +33,83 @@ public class SignUpActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_sign_up);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        TextInputLayout fullNameTextInputLayout = findViewById(R.id.til_name);
+        TextInputLayout emailTextInputLayout = findViewById(R.id.til_email);
+        TextInputLayout passwordTextInputLayout = findViewById(R.id.til_password);
+        TextInputLayout confirmPasswordTextInputLayout = findViewById(R.id.til_confirm_password);
+
+        assert fullNameTextInputLayout.getEditText() != null;
+        assert emailTextInputLayout.getEditText() != null;
+        assert passwordTextInputLayout.getEditText() != null;
+        assert confirmPasswordTextInputLayout.getEditText() != null;
+
+        EditText passwordEditText = passwordTextInputLayout.getEditText();
+
+        passwordEditText.addTextChangedListener(new PasswordTextWatcher(passwordTextInputLayout));
+
+        Button signUpButton = findViewById(R.id.btn_register);
+
+        signUpButton.setOnClickListener(v -> {
+            String fullName = fullNameTextInputLayout
+                    .getEditText()
+                    .getText()
+                    .toString();
+
+            String email = emailTextInputLayout
+                    .getEditText()
+                    .getText()
+                    .toString();
+
+            String password = passwordTextInputLayout
+                    .getEditText()
+                    .getText()
+                    .toString();
+
+            String confirmPassword = confirmPasswordTextInputLayout
+                    .getEditText()
+                    .getText()
+                    .toString();
+
+            if(!password.equals(confirmPassword))
+                confirmPasswordTextInputLayout.setError("Passwords must match.");
+            else confirmPasswordTextInputLayout.setError(null);
+
+            firebaseAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(task -> {
+                        if(task.isSuccessful()) {
+                            FirebaseUser user = task.getResult().getUser();
+                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(fullName)
+                                    .build();
+
+                            assert user != null;
+                            user.updateProfile(profileUpdates)
+                                    .addOnCompleteListener(updateTask -> {
+                                        if(updateTask.isSuccessful()) {
+                                            FirebaseUser updatedUser = task.getResult().getUser();
+                                            assert updatedUser != null;
+                                            String displayName = updatedUser.getDisplayName();
+                                            Log.d(TAG,"User created and display name updated to: " + displayName);
+                                        }
+                                    });
+                        }
+                        else {
+                            Exception e = task.getException();
+                            if(e instanceof FirebaseAuthUserCollisionException)
+                                emailTextInputLayout.setError("Email is already taken");
+                            Log.d(TAG, "something went wrong");
+                        }
+                    });
+        });
+
+
 
         TextView signIn = findViewById(R.id.tv_login);
         signIn.setOnClickListener(v -> {
@@ -42,7 +123,7 @@ public class SignUpActivity extends AppCompatActivity {
         signUpWithGoogleButton.setOnClickListener(v -> {
             GoogleSignInLauncher googleSignInLauncher = new GoogleSignInLauncher(this)
                     .setCredentialManagerCallbackOnErrorHandler(
-                           e -> Log.e("Something", Objects.requireNonNull(e.getLocalizedMessage()))
+                           e -> Log.d("Something", Objects.requireNonNull(e.getLocalizedMessage()))
                     )
                     .setOnCompleteListener(task -> {
                         if(task.isSuccessful()) {
