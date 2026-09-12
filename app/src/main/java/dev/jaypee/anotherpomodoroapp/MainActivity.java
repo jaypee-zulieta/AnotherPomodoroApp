@@ -32,7 +32,20 @@ public class MainActivity extends AppCompatActivity {
         });
 
         InitializeSignInWithGoogleButton(R.id.sign_in_with_google_button);
+        Button signInButton = findViewById(R.id.btn_sign_in);
+        Button signUpButton = findViewById(R.id.btn_sign_up);
 
+        signInButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SignInActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        signUpButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SignUpActivity.class);
+            startActivity(intent);
+            finish();
+        });
 
     }
 
