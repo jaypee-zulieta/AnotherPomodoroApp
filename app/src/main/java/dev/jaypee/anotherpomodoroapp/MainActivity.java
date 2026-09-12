@@ -1,11 +1,13 @@
 package dev.jaypee.anotherpomodoroapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.IdRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -29,12 +31,18 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        Button siginInWithGoogleButton = findViewById(R.id.sign_in_with_google_button);
+        InitializeSignInWithGoogleButton(R.id.sign_in_with_google_button);
 
-        siginInWithGoogleButton.setOnClickListener(v -> {
+
+    }
+
+    // This method was made to declutter the onCreate method.
+    private void InitializeSignInWithGoogleButton(@IdRes int id)  {
+        Button button = findViewById(id);
+        button.setOnClickListener(v -> {
             GoogleSignInLauncher googleSignInLauncher = new GoogleSignInLauncher(this)
                     .setCredentialManagerCallbackOnErrorHandler(e ->
-                        Log.e("TAG", Objects.requireNonNull(e.getLocalizedMessage()))
+                            Log.e("TAG", Objects.requireNonNull(e.getLocalizedMessage()))
                     )
                     .setOnCompleteListener(task -> {
                         if(task.isSuccessful()) {
@@ -50,4 +58,5 @@ public class MainActivity extends AppCompatActivity {
             googleSignInLauncher.launch();
         });
     }
+
 }
