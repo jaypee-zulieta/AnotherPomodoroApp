@@ -120,8 +120,8 @@ public class SignUpActivity extends AppCompatActivity {
                                             String displayName = updatedUser.getDisplayName();
                                             Log.d(TAG,"User created and display name updated to: " + displayName);
                                             
-                                            // Redirect to ProfileActivity
-                                            Intent intent = new Intent(SignUpActivity.this, ProfileActivity.class);
+                                            // Redirect to HomeActivity
+                                            Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
                                             startActivity(intent);
                                             finish();
                                         }
@@ -169,7 +169,7 @@ public class SignUpActivity extends AppCompatActivity {
                             String displayName = user.getDisplayName();
                             Toast.makeText(this, "Welcome " + displayName, Toast.LENGTH_SHORT).show();
 
-                            Intent intent = new Intent(this, ProfileActivity.class);
+                            Intent intent = new Intent(this, HomeActivity.class);
                             startActivity(intent);
                             finish();
                         }

@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Check if user is already signed in
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            startActivity(new Intent(this, ProfileActivity.class));
+            startActivity(new Intent(this, HomeActivity.class));
             finish();
             return;
         }
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                             String displayName = user.getDisplayName();
                             Toast.makeText(this, "Welcome " + displayName, Toast.LENGTH_SHORT).show();
                             
-                            startActivity(new Intent(this, ProfileActivity.class));
+                            startActivity(new Intent(this, HomeActivity.class));
                             finish();
                         }
                         else Toast.makeText(this, "Something went wrong!", Toast.LENGTH_SHORT).show();

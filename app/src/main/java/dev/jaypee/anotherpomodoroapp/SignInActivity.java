@@ -63,7 +63,7 @@ public class SignInActivity extends AppCompatActivity {
                         loginButton.setEnabled(true);
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithEmail:success");
-                            Intent intent = new Intent(SignInActivity.this, ProfileActivity.class);
+                            Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
                             startActivity(intent);
                             finish();
                         } else {
@@ -91,7 +91,7 @@ public class SignInActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = task.getResult().getUser();
                             assert user != null;
-                            Intent intent = new Intent(SignInActivity.this, ProfileActivity.class);
+                            Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
                             startActivity(intent);
                             finish();
                         } else {

@@ -48,6 +48,7 @@ public class ProfileActivity extends AppCompatActivity {
         ProgressBar progressBar = findViewById(R.id.pb_profile_loading);
         TextView nameTextView = findViewById(R.id.tv_profile_name);
         TextView emailTextView = findViewById(R.id.tv_profile_email);
+        Button backHomeButton = findViewById(R.id.btn_back_home);
         Button logoutButton = findViewById(R.id.btn_logout);
 
         if (user != null) {
@@ -94,6 +95,13 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(new Intent(this, SignInActivity.class));
             finish();
         }
+
+        backHomeButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
+        });
 
         logoutButton.setOnClickListener(v -> {
             firebaseAuth.signOut();
