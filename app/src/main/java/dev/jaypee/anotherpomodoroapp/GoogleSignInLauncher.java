@@ -24,6 +24,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.security.SecureRandom;
+import android.util.Base64;
 import java.util.concurrent.Executors;
 
 public class GoogleSignInLauncher {
@@ -59,6 +61,7 @@ public class GoogleSignInLauncher {
     public void launch() {
         GetSignInWithGoogleOption signInWithGoogleOption = new GetSignInWithGoogleOption
                 .Builder(activity.getString(R.string.default_web_client_id))
+                .setNonce(generateSecureNonce())
                 .build();
 
         GetCredentialRequest request = new GetCredentialRequest.Builder()
@@ -87,6 +90,12 @@ public class GoogleSignInLauncher {
                     }
                 }
         );
+    }
+
+    private String generateSecureNonce() {
+        byte[] randomBytes = new byte[12];
+        new SecureRandom().nextBytes(randomBytes);
+        return Base64.encodeToString(randomBytes, Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
     }
 
     public GoogleSignInLauncher setCredentialManagerCallbackOnErrorHandler(CredentialManagerCallbackOnErrorHandler handler) {
