@@ -1,3 +1,10 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">AnotherPomodoroApp</string>
+    <string name="welcome_title">Welcome to Pomodoro</string>
+    <string name="welcome_subtitle">Boost your productivity and stay focused.</string>
+    <string name="btn_sign_in">Sign In</string>
+    <string name="btn_sign_up">Sign Up</string>
+    <string name="btn_google_sign_in">Sign in with Google</string>
+    <string name="or_divider">OR</string>
+    <string name="default_web_client_id" tools:ignore="MissingTranslation">YOUR_WEB_CLIENT_ID_HERE</string>
 </resources>

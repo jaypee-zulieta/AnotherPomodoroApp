@@ -2,7 +2,9 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.AnotherPomodoroApp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/pomodoro_red</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/pomodoro_red_dark</item>
     </style>
 
     <style name="Theme.AnotherPomodoroApp" parent="Base.Theme.AnotherPomodoroApp" />

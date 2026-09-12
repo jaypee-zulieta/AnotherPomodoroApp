@@ -2,4 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="pomodoro_red">#E53935</color>
+    <color name="pomodoro_red_dark">#B71C1C</color>
+    <color name="pomodoro_red_light">#FFCDD2</color>
+    <color name="gray_text">#757575</color>
+    <color name="gray_light">#F5F5F5</color>
+    <color name="gray_border">#E0E0E0</color>
 </resources>
