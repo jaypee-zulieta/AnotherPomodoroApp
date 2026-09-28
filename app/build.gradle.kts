@@ -9,6 +9,10 @@ android {
         version = release(37)
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "dev.jaypee.anotherpomodoroapp"
         minSdk = 24
@@ -17,6 +21,18 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val localProperties = project.rootProject.file("local.properties")
+        var apiKey = "YOUR_API_KEY"
+        if (localProperties.exists()) {
+            val lines = localProperties.readLines()
+            for (line in lines) {
+                if (line.startsWith("GEMINI_API_KEY=")) {
+                    apiKey = line.substringAfter("GEMINI_API_KEY=").trim()
+                }
+            }
+        }
+        buildConfigField("String", "GEMINI_API_KEY", "\"$apiKey\"")
     }
 
     buildTypes {
@@ -38,9 +54,11 @@ dependencies {
     implementation(libs.credentials.play.services.auth)
     implementation(libs.googleid.v120)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.ui.auth)
+    implementation(libs.generativeai)
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)

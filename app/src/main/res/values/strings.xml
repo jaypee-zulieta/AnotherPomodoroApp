@@ -22,4 +22,14 @@
     <string name="action_sign_in">Sign In</string>
     <string name="action_sign_up">Sign Up</string>
     <string name="default_web_client_id" tools:ignore="MissingTranslation">YOUR_WEB_CLIENT_ID_HERE</string>
+    <string name="add_new_task">Add New Task</string>
+    <string name="task_description">Task Description</string>
+    <string name="ask_ai">Ask AI for Recommendation</string>
+    <string name="work_min">Work (min)</string>
+    <string name="break_min">Break (min)</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_task">Add Task</string>
+    <string name="send">Send</string>
+    <string name="type_a_message">Type a message…</string>
+    <string name="empty_state_text">Pomodoro Tasks will appear here</string>
 </resources>

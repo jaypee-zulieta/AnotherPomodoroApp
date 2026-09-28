@@ -18,14 +18,35 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="16dp" />
+
         <TextView
+            android:id="@+id/tv_empty_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Pomodoro Tasks will appear here"
+            android:text="@string/empty_state_text"
             android:textColor="@color/gray_text"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:visibility="gone" />
     </FrameLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_task"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/ic_add"
+        app:backgroundTint="@color/pomodoro_red"
+        app:layout_constraintBottom_toTopOf="@id/cv_bottom_nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/white" />
 
     <!-- Floating Bottom Navigation Bar -->
     <com.google.android.material.card.MaterialCardView
