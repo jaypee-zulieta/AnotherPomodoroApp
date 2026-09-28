@@ -16,6 +16,7 @@
             android:id="@+id/tv_task_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:text="Task Title"
             android:textColor="@color/black"
             android:textSize="18sp"
@@ -28,9 +29,37 @@
             android:id="@+id/tv_task_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
             android:text="25m / 5m"
             android:textColor="@color/gray_text"
             android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/tv_task_title"
+            app:layout_constraintEnd_toStartOf="@id/iv_edit_task"
+            app:layout_constraintTop_toTopOf="@id/tv_task_title" />
+
+        <ImageView
+            android:id="@+id/iv_edit_task"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/edit_task"
+            android:padding="4dp"
+            android:src="@drawable/ic_edit"
+            app:tint="@color/gray_text"
+            app:layout_constraintBottom_toBottomOf="@id/tv_task_title"
+            app:layout_constraintEnd_toStartOf="@id/iv_delete_task"
+            app:layout_constraintTop_toTopOf="@id/tv_task_title" />
+
+        <ImageView
+            android:id="@+id/iv_delete_task"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/delete_task"
+            android:padding="4dp"
+            android:src="@drawable/ic_delete"
+            app:tint="@color/pomodoro_red"
             app:layout_constraintBottom_toBottomOf="@id/tv_task_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/tv_task_title" />

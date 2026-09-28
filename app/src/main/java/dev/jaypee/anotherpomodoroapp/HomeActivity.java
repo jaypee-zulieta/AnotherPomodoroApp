@@ -67,6 +67,17 @@ public class HomeActivity extends AppCompatActivity {
         FloatingActionButton fabAddTask = findViewById(R.id.fab_add_task);
 
         taskAdapter = new TaskAdapter();
+        taskAdapter.setOnTaskActionListener(new TaskAdapter.OnTaskActionListener() {
+            @Override
+            public void onTaskEdit(PomodoroTask task) {
+                showEditTaskDialog(task);
+            }
+
+            @Override
+            public void onTaskDelete(PomodoroTask task) {
+                confirmDeleteTask(task);
+            }
+        });
         rvTasks.setLayoutManager(new LinearLayoutManager(this));
         rvTasks.setAdapter(taskAdapter);
 
@@ -306,5 +317,77 @@ public class HomeActivity extends AppCompatActivity {
         initialTextView.setOnClickListener(v -> {
             startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
         });
+    }
+
+    private void showEditTaskDialog(PomodoroTask task) {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_task, null);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        com.google.android.material.textfield.TextInputLayout tilTitle = dialogView.findViewById(R.id.til_edit_title);
+        EditText etTitle = dialogView.findViewById(R.id.et_edit_title);
+        EditText etWork = dialogView.findViewById(R.id.et_edit_work_time);
+        EditText etBreak = dialogView.findViewById(R.id.et_edit_break_time);
+        Button btnSave = dialogView.findViewById(R.id.btn_save_task);
+        Button btnCancel = dialogView.findViewById(R.id.btn_cancel_edit);
+        Button btnDelete = dialogView.findViewById(R.id.btn_delete_task);
+
+        etTitle.setText(task.getTitle());
+        etWork.setText(String.valueOf(task.getWorkTime()));
+        etBreak.setText(String.valueOf(task.getBreakTime()));
+
+        btnSave.setOnClickListener(v -> {
+            String newTitle = etTitle.getText().toString().trim();
+            if (newTitle.isEmpty()) {
+                tilTitle.setError("Task title is required");
+                return;
+            }
+
+            String workStr = etWork.getText().toString().trim();
+            String breakStr = etBreak.getText().toString().trim();
+
+            int workTime = workStr.isEmpty() ? 25 : Integer.parseInt(workStr);
+            int breakTime = breakStr.isEmpty() ? 5 : Integer.parseInt(breakStr);
+
+            task.setTitle(newTitle);
+            task.setWorkTime(workTime);
+            task.setBreakTime(breakTime);
+
+            firestoreService.saveTask(task, aVoid -> {
+                dialog.dismiss();
+                Toast.makeText(this, "Task updated", Toast.LENGTH_SHORT).show();
+            }, e -> {
+                Toast.makeText(this, "Failed to update task: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
+        });
+
+        btnDelete.setOnClickListener(v -> {
+            dialog.dismiss();
+            confirmDeleteTask(task);
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    private void confirmDeleteTask(PomodoroTask task) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.confirm_delete_title)
+                .setMessage(R.string.confirm_delete_message)
+                .setPositiveButton(R.string.delete_task, (dialog, which) -> {
+                    firestoreService.deleteTask(task.getId(), aVoid -> {
+                        Toast.makeText(HomeActivity.this, "Task deleted", Toast.LENGTH_SHORT).show();
+                    }, e -> {
+                        Toast.makeText(HomeActivity.this, "Failed to delete task: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 }

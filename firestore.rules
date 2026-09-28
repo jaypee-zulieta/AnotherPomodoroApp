@@ -1,0 +1,16 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Rules for the tasks collection
+    match /tasks/{taskId} {
+      // Allow users to create tasks assigned to their own Firebase user ID
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+
+      // Allow users to read, update, and delete only their own tasks
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+  }
+}

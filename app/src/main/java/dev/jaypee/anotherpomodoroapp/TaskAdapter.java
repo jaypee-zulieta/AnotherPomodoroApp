@@ -3,6 +3,7 @@ package dev.jaypee.anotherpomodoroapp;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,7 +14,17 @@ import java.util.List;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
+    public interface OnTaskActionListener {
+        void onTaskEdit(PomodoroTask task);
+        void onTaskDelete(PomodoroTask task);
+    }
+
     private List<PomodoroTask> tasks = new ArrayList<>();
+    private OnTaskActionListener listener;
+
+    public void setOnTaskActionListener(OnTaskActionListener listener) {
+        this.listener = listener;
+    }
 
     public void setTasks(List<PomodoroTask> tasks) {
         this.tasks = tasks;
@@ -32,11 +43,25 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         PomodoroTask task = tasks.get(position);
         holder.tvTitle.setText(task.getTitle());
         holder.tvDuration.setText(task.getWorkTime() + "m / " + task.getBreakTime() + "m");
-        // For description, we use title as well or if we had a separate field. 
-        // The requirements say item_task has tv_task_description.
-        // Let's use a default description for now or use the title if we don't have a separate field.
-        // Actually PomodoroTask only has title.
-        holder.tvDescription.setText("Duration: " + task.getWorkTime() + " mins focus");
+        holder.tvDescription.setText("Duration: " + task.getWorkTime() + " mins focus, " + task.getBreakTime() + " mins break");
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onTaskEdit(task);
+            }
+        });
+
+        holder.ivEdit.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onTaskEdit(task);
+            }
+        });
+
+        holder.ivDelete.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onTaskDelete(task);
+            }
+        });
     }
 
     @Override
@@ -46,12 +71,15 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     static class TaskViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvDuration, tvDescription;
+        ImageView ivEdit, ivDelete;
 
         public TaskViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tv_task_title);
             tvDuration = itemView.findViewById(R.id.tv_task_duration);
             tvDescription = itemView.findViewById(R.id.tv_task_description);
+            ivEdit = itemView.findViewById(R.id.iv_edit_task);
+            ivDelete = itemView.findViewById(R.id.iv_delete_task);
         }
     }
 }
