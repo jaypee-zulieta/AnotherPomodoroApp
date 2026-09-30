@@ -49,7 +49,7 @@ android {
 }
 
 dependencies {
-    implementation(libs.glide)
+    implementation("com.github.bumptech.glide:glide:5.0.9")
     implementation(libs.credentials)
     implementation(libs.credentials.play.services.auth)
     implementation(libs.googleid.v120)

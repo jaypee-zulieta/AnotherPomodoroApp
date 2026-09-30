@@ -17,7 +17,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     public interface OnTaskActionListener {
         void onTaskEdit(PomodoroTask task);
         void onTaskDelete(PomodoroTask task);
-        void onTaskStartTimer(PomodoroTask task);
     }
 
     private List<PomodoroTask> tasks = new ArrayList<>();
@@ -48,13 +47,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onTaskStartTimer(task);
-            }
-        });
-
-        holder.ivStartTimer.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onTaskStartTimer(task);
+                listener.onTaskEdit(task);
             }
         });
 
@@ -78,7 +71,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     static class TaskViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvDuration, tvDescription;
-        ImageView ivEdit, ivDelete, ivStartTimer;
+        ImageView ivEdit, ivDelete;
 
         public TaskViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -87,7 +80,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             tvDescription = itemView.findViewById(R.id.tv_task_description);
             ivEdit = itemView.findViewById(R.id.iv_edit_task);
             ivDelete = itemView.findViewById(R.id.iv_delete_task);
-            ivStartTimer = itemView.findViewById(R.id.iv_start_timer);
         }
     }
 }
