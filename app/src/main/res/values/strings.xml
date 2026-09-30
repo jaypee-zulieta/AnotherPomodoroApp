@@ -37,4 +37,14 @@
     <string name="save_changes">Save Changes</string>
     <string name="confirm_delete_title">Delete Task</string>
     <string name="confirm_delete_message">Are you sure you want to delete this task?</string>
+    <string name="gemini_sparkle">Gemini Sparkle</string>
+    <string name="error_describe_task">Please describe your task to the AI coach first or choose Dismiss AI</string>
+    <string name="timer_title">Pomodoro Timer</string>
+    <string name="focus_time">Focus Time</string>
+    <string name="break_time">Break Time</string>
+    <string name="pomodoro_session">Pomodoro Session</string>
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="reset">Reset</string>
 </resources>

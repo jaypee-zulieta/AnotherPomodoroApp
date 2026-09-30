@@ -34,6 +34,20 @@
             android:textColor="@color/gray_text"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="@id/tv_task_title"
+            app:layout_constraintEnd_toStartOf="@id/iv_start_timer"
+            app:layout_constraintTop_toTopOf="@id/tv_task_title" />
+
+        <ImageView
+            android:id="@+id/iv_start_timer"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/timer_title"
+            android:padding="4dp"
+            android:src="@drawable/ic_timer"
+            app:tint="@color/pomodoro_red"
+            app:layout_constraintBottom_toBottomOf="@id/tv_task_title"
             app:layout_constraintEnd_toStartOf="@id/iv_edit_task"
             app:layout_constraintTop_toTopOf="@id/tv_task_title" />
 

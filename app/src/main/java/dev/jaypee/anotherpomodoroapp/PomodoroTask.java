@@ -2,8 +2,10 @@ package dev.jaypee.anotherpomodoroapp;
 
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
+import java.io.Serializable;
+
 @IgnoreExtraProperties
-public class PomodoroTask {
+public class PomodoroTask implements Serializable {
     private String id;
     private String userId;
     private String title;

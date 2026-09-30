@@ -1,10 +1,8 @@
 package dev.jaypee.anotherpomodoroapp;
 
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,11 +24,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         return messages;
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        return messages.get(position).isUser() ? 1 : 0;
-    }
-
     @NonNull
     @Override
     public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -41,17 +34,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         ChatMessage message = messages.get(position);
-        holder.tvMessage.setText(message.getText());
-
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) holder.tvMessage.getLayoutParams();
         if (message.isUser()) {
-            params.gravity = Gravity.END;
-            holder.tvMessage.setBackgroundResource(R.drawable.bg_chat_bubble_user);
+            holder.llUserMessage.setVisibility(View.VISIBLE);
+            holder.llAiMessage.setVisibility(View.GONE);
+            holder.tvUserMessageText.setText(message.getText());
         } else {
-            params.gravity = Gravity.START;
-            holder.tvMessage.setBackgroundResource(R.drawable.bg_chat_bubble_ai);
+            holder.llAiMessage.setVisibility(View.VISIBLE);
+            holder.llUserMessage.setVisibility(View.GONE);
+            holder.tvAiMessageText.setText(message.getText());
         }
-        holder.tvMessage.setLayoutParams(params);
     }
 
     @Override
@@ -60,11 +51,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     }
 
     static class ChatViewHolder extends RecyclerView.ViewHolder {
-        TextView tvMessage;
+        View llAiMessage, llUserMessage;
+        TextView tvAiMessageText, tvUserMessageText;
 
         ChatViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvMessage = itemView.findViewById(R.id.tv_message_text);
+            llAiMessage = itemView.findViewById(R.id.ll_ai_message);
+            llUserMessage = itemView.findViewById(R.id.ll_user_message);
+            tvAiMessageText = itemView.findViewById(R.id.tv_ai_message_text);
+            tvUserMessageText = itemView.findViewById(R.id.tv_user_message_text);
         }
     }
 }

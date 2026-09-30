@@ -1,19 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="4dp">
+    android:paddingHorizontal="4dp"
+    android:paddingVertical="6dp">
 
-    <TextView
-        android:id="@+id/tv_message_text"
-        android:layout_width="wrap_content"
+    <!-- AI Message Container (Left Aligned with Sparkle Icon) -->
+    <LinearLayout
+        android:id="@+id/ll_ai_message"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_chat_bubble_ai"
-        android:paddingHorizontal="14dp"
-        android:paddingVertical="10dp"
-        android:textColor="@color/black"
-        android:textSize="16sp" />
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="48dp"
+        android:gravity="start|top"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="4dp"
+            android:contentDescription="@string/gemini_sparkle"
+            android:src="@drawable/ic_sparkle"
+            app:tint="@color/pomodoro_red" />
+
+        <TextView
+            android:id="@+id/tv_ai_message_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_chat_bubble_ai"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:textColor="@color/black"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <!-- User Message Container (Right Aligned) -->
+    <LinearLayout
+        android:id="@+id/ll_user_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="end|top"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_user_message_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_chat_bubble_user"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:textColor="@color/black"
+            android:textSize="15sp" />
+    </LinearLayout>
 
 </LinearLayout>
