@@ -33,12 +33,4 @@ public class FirestoreService {
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .addSnapshotListener(listener);
     }
-
-    public void deleteTask(String taskId, OnSuccessListener<Void> successListener, OnFailureListener failureListener) {
-        db.collection("tasks")
-                .document(taskId)
-                .delete()
-                .addOnSuccessListener(successListener)
-                .addOnFailureListener(failureListener);
-    }
 }
