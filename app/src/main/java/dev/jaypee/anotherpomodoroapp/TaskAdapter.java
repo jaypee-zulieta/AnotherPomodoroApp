@@ -3,11 +3,13 @@ package dev.jaypee.anotherpomodoroapp;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +45,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         PomodoroTask task = tasks.get(position);
         holder.tvTitle.setText(task.getTitle());
-        holder.tvDuration.setText(task.getWorkTime() + "m / " + task.getBreakTime() + "m");
+        holder.chipDuration.setText(task.getWorkTime() + " min / " + task.getBreakTime() + " min");
         holder.tvDescription.setText("Duration: " + task.getWorkTime() + " mins focus, " + task.getBreakTime() + " mins break");
 
         holder.itemView.setOnClickListener(v -> {
@@ -52,19 +54,19 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             }
         });
 
-        holder.ivStartTimer.setOnClickListener(v -> {
+        holder.btnStartTimer.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onTaskStartTimer(task);
             }
         });
 
-        holder.ivEdit.setOnClickListener(v -> {
+        holder.btnEdit.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onTaskEdit(task);
             }
         });
 
-        holder.ivDelete.setOnClickListener(v -> {
+        holder.btnDelete.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onTaskDelete(task);
             }
@@ -77,17 +79,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     }
 
     static class TaskViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvDuration, tvDescription;
-        ImageView ivEdit, ivDelete, ivStartTimer;
+        TextView tvTitle, tvDescription;
+        Chip chipDuration;
+        MaterialButton btnStartTimer, btnEdit, btnDelete;
 
         public TaskViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tv_task_title);
-            tvDuration = itemView.findViewById(R.id.tv_task_duration);
+            chipDuration = itemView.findViewById(R.id.chip_task_duration);
             tvDescription = itemView.findViewById(R.id.tv_task_description);
-            ivEdit = itemView.findViewById(R.id.iv_edit_task);
-            ivDelete = itemView.findViewById(R.id.iv_delete_task);
-            ivStartTimer = itemView.findViewById(R.id.iv_start_timer);
+            btnStartTimer = itemView.findViewById(R.id.btn_start_timer);
+            btnEdit = itemView.findViewById(R.id.btn_edit_task);
+            btnDelete = itemView.findViewById(R.id.btn_delete_task);
         }
     }
 }

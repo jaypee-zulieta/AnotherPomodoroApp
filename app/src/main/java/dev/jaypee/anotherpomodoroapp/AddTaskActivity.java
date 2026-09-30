@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +16,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
+
+import io.noties.markwon.Markwon;
 
 public class AddTaskActivity extends AppCompatActivity {
 
@@ -62,10 +66,12 @@ public class AddTaskActivity extends AppCompatActivity {
         firestoreService = new FirestoreService();
         geminiService = new GeminiRecommendationService();
 
-        ImageView ibBack = findViewById(R.id.ib_back);
-        TextView tvScreenTitle = findViewById(R.id.tv_screen_title);
-        Button btnDismissAi = findViewById(R.id.btn_dismiss_ai);
-        Button btnActivateAi = findViewById(R.id.btn_activate_ai);
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> finish());
+
+        MaterialButton btnDismissAi = findViewById(R.id.btn_dismiss_ai);
+        MaterialButton btnActivateAi = findViewById(R.id.btn_activate_ai);
 
         com.google.android.material.textfield.TextInputLayout tilManualTitle = findViewById(R.id.til_manual_title);
         EditText etManualTitle = findViewById(R.id.et_manual_title);
@@ -73,7 +79,7 @@ public class AddTaskActivity extends AppCompatActivity {
         View chatContainer = findViewById(R.id.ll_chat_container);
         RecyclerView rvChat = findViewById(R.id.rv_chat);
         EditText etChatInput = findViewById(R.id.et_chat_input);
-        View btnSend = findViewById(R.id.btn_send);
+        MaterialButton btnSend = findViewById(R.id.btn_send);
         ProgressBar pbAi = findViewById(R.id.pb_ai_loading);
         TextView tvAiError = findViewById(R.id.tv_ai_error);
 
@@ -85,10 +91,9 @@ public class AddTaskActivity extends AppCompatActivity {
         Button btnCancel = findViewById(R.id.btn_cancel);
         Button btnSaveTask = findViewById(R.id.btn_save_task);
 
-        ibBack.setOnClickListener(v -> finish());
         btnCancel.setOnClickListener(v -> finish());
 
-        ChatAdapter chatAdapter = new ChatAdapter();
+        ChatAdapter chatAdapter = new ChatAdapter(Markwon.create(this));
         rvChat.setLayoutManager(new LinearLayoutManager(this));
         rvChat.setAdapter(chatAdapter);
         chatAdapter.addMessage(new ChatMessage("What are you planning to do today?", false));
@@ -96,7 +101,6 @@ public class AddTaskActivity extends AppCompatActivity {
         boolean isEditing = (taskToEdit != null);
 
         if (isEditing) {
-            tvScreenTitle.setText(R.string.edit_task);
             btnSaveTask.setText(R.string.save_changes);
             btnDelete.setVisibility(View.VISIBLE);
 
@@ -110,7 +114,6 @@ public class AddTaskActivity extends AppCompatActivity {
             etWork.setText(String.valueOf(taskToEdit.getWorkTime()));
             etBreak.setText(String.valueOf(taskToEdit.getBreakTime()));
         } else {
-            tvScreenTitle.setText(R.string.add_new_task);
             btnSaveTask.setText(R.string.add_task);
             btnDelete.setVisibility(View.GONE);
 

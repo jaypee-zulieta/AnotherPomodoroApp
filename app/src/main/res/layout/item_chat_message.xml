@@ -25,7 +25,7 @@
             android:layout_marginTop="4dp"
             android:contentDescription="@string/gemini_sparkle"
             android:src="@drawable/ic_sparkle"
-            app:tint="@color/pomodoro_red" />
+            app:tint="?attr/colorPrimary" />
 
         <TextView
             android:id="@+id/tv_ai_message_text"
@@ -34,8 +34,10 @@
             android:background="@drawable/bg_chat_bubble_ai"
             android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
-            android:textColor="@color/black"
-            android:textSize="15sp" />
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif"
+            android:lineHeight="20sp" />
     </LinearLayout>
 
     <!-- User Message Container (Right Aligned) -->
@@ -56,8 +58,10 @@
             android:background="@drawable/bg_chat_bubble_user"
             android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
-            android:textColor="@color/black"
-            android:textSize="15sp" />
+            android:textColor="?attr/colorOnPrimaryContainer"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif"
+            android:lineHeight="20sp" />
     </LinearLayout>
 
 </LinearLayout>

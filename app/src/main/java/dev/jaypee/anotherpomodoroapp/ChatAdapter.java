@@ -11,9 +11,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.noties.markwon.Markwon;
+
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
     private final List<ChatMessage> messages = new ArrayList<>();
+    private final Markwon markwon;
+
+    public ChatAdapter(Markwon markwon) {
+        this.markwon = markwon;
+    }
 
     public void addMessage(ChatMessage message) {
         messages.add(message);
@@ -41,7 +48,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         } else {
             holder.llAiMessage.setVisibility(View.VISIBLE);
             holder.llUserMessage.setVisibility(View.GONE);
-            holder.tvAiMessageText.setText(message.getText());
+            markwon.setMarkdown(holder.tvAiMessageText, message.getText());
         }
     }
 

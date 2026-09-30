@@ -3,11 +3,10 @@ package dev.jaypee.anotherpomodoroapp;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -36,7 +38,7 @@ public class HomeActivity extends AppCompatActivity {
     private TaskAdapter taskAdapter;
     private ListenerRegistration tasksListener;
     private RecyclerView rvTasks;
-    private TextView tvEmptyState;
+    private MaterialCardView cvEmptyState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +65,7 @@ public class HomeActivity extends AppCompatActivity {
         geminiService = new GeminiRecommendationService();
 
         rvTasks = findViewById(R.id.rv_tasks);
-        tvEmptyState = findViewById(R.id.tv_empty_state);
+        cvEmptyState = findViewById(R.id.cv_empty_state);
         FloatingActionButton fabAddTask = findViewById(R.id.fab_add_task);
 
         taskAdapter = new TaskAdapter();
@@ -99,8 +101,49 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        MaterialButton btnEmptyAddTask = findViewById(R.id.btn_empty_add_task);
+        if (btnEmptyAddTask != null) {
+            btnEmptyAddTask.setOnClickListener(v -> {
+                Intent intent = new Intent(HomeActivity.this, AddTaskActivity.class);
+                intent.putExtra(AddTaskActivity.EXTRA_USER_ID, user.getUid());
+                startActivity(intent);
+            });
+        }
+
+        setupToolbar();
         setupBottomNavigation(user);
         listenForTasks(user.getUid());
+    }
+
+    private void setupToolbar() {
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> {
+            startActivity(new Intent(HomeActivity.this, TimerActivity.class));
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_home, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            Toast.makeText(this, "Settings coming soon", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.action_logout) {
+            firebaseAuth.signOut();
+            Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void listenForTasks(String userId) {
@@ -113,7 +156,7 @@ public class HomeActivity extends AppCompatActivity {
             if (value != null) {
                 List<PomodoroTask> tasks = value.toObjects(PomodoroTask.class);
                 taskAdapter.setTasks(tasks);
-                tvEmptyState.setVisibility(tasks.isEmpty() ? View.VISIBLE : View.GONE);
+                cvEmptyState.setVisibility(tasks.isEmpty() ? View.VISIBLE : View.GONE);
             }
         });
     }
@@ -165,6 +208,13 @@ public class HomeActivity extends AppCompatActivity {
             }
         }
 
+        MaterialButton btnNavProfile = findViewById(R.id.btn_nav_profile);
+        if (btnNavProfile != null) {
+            btnNavProfile.setOnClickListener(v -> {
+                startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
+            });
+        }
+
         profileImageView.setOnClickListener(v -> {
             startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
         });
@@ -173,9 +223,19 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
         });
 
-        ImageView timerNavIcon = findViewById(R.id.iv_nav_timer);
-        timerNavIcon.setOnClickListener(v -> {
-            startActivity(new Intent(HomeActivity.this, TimerActivity.class));
-        });
+        MaterialButton btnNavTimer = findViewById(R.id.btn_nav_timer);
+        if (btnNavTimer != null) {
+            btnNavTimer.setOnClickListener(v -> {
+                startActivity(new Intent(HomeActivity.this, TimerActivity.class));
+            });
+        }
+
+        MaterialButton btnNavTasks = findViewById(R.id.btn_nav_tasks);
+        if (btnNavTasks != null) {
+            btnNavTasks.setOnClickListener(v -> {
+                // Already on home, scroll to top
+                rvTasks.smoothScrollToPosition(0);
+            });
+        }
     }
 }

@@ -11,7 +11,6 @@ import android.os.Vibrator;
 import android.os.VibratorManager;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +19,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
+
 
 import java.util.Locale;
 
@@ -38,8 +41,12 @@ public class TimerActivity extends AppCompatActivity {
     private static int staticBreakTimeMinutes = 5;
     private static String staticTaskTitle = "Pomodoro Session";
 
-    private TextView tvCountdown, tvTimerMode;
+    private TextView tvCountdown;
+    private Chip chipTimerMode;
+    private CircularProgressView cpiTimer;
     private Button btnStartPause;
+    private TextView tvWorkDuration;
+    private TextView tvBreakDuration;
 
     private CountDownTimer countDownTimer;
     private long timeLeftInMillis;
@@ -99,17 +106,23 @@ public class TimerActivity extends AppCompatActivity {
         }
 
         tvCountdown = findViewById(R.id.tv_countdown);
-        tvTimerMode = findViewById(R.id.tv_timer_mode);
+        chipTimerMode = findViewById(R.id.chip_timer_mode);
+        cpiTimer = findViewById(R.id.cpi_timer);
         TextView tvTimerTaskTitle = findViewById(R.id.tv_timer_task_title);
         btnStartPause = findViewById(R.id.btn_start_pause);
         Button btnReset = findViewById(R.id.btn_reset);
-        ImageView ibBack = findViewById(R.id.ib_back);
+        MaterialButton ibBack = findViewById(R.id.ib_back);
+        tvWorkDuration = findViewById(R.id.tv_work_duration);
+        tvBreakDuration = findViewById(R.id.tv_break_duration);
 
         ibBack.setOnClickListener(v -> finish());
 
         tvTimerTaskTitle.setText(taskTitle);
-        tvTimerMode.setText(isWorkMode ? R.string.focus_time : R.string.break_time);
+        chipTimerMode.setText(isWorkMode ? R.string.focus_time : R.string.break_time);
+        tvWorkDuration.setText(workTimeMinutes + " min");
+        tvBreakDuration.setText(breakTimeMinutes + " min");
         updateCountDownText();
+        updateProgress();
 
         if (isTimerRunning) {
             btnStartPause.setText(R.string.pause);
@@ -176,6 +189,7 @@ public class TimerActivity extends AppCompatActivity {
             public void onTick(long millisUntilFinished) {
                 timeLeftInMillis = millisUntilFinished;
                 updateCountDownText();
+                updateProgress();
             }
 
             @Override
@@ -197,15 +211,16 @@ public class TimerActivity extends AppCompatActivity {
         if (isWorkMode) {
             Toast.makeText(TimerActivity.this, "Focus session finished! Time for a break.", Toast.LENGTH_LONG).show();
             isWorkMode = false;
-            tvTimerMode.setText(R.string.break_time);
+            chipTimerMode.setText(R.string.break_time);
             timeLeftInMillis = breakTimeMinutes * 60 * 1000L;
         } else {
             Toast.makeText(TimerActivity.this, "Break finished! Back to focus.", Toast.LENGTH_LONG).show();
             isWorkMode = true;
-            tvTimerMode.setText(R.string.focus_time);
+            chipTimerMode.setText(R.string.focus_time);
             timeLeftInMillis = workTimeMinutes * 60 * 1000L;
         }
         updateCountDownText();
+        updateProgress();
         startTimer();
     }
 
@@ -225,9 +240,10 @@ public class TimerActivity extends AppCompatActivity {
         isTimerRunning = false;
         staticTimerRunning = false;
         isWorkMode = true;
-        tvTimerMode.setText(R.string.focus_time);
+        chipTimerMode.setText(R.string.focus_time);
         timeLeftInMillis = workTimeMinutes * 60 * 1000L;
         updateCountDownText();
+        updateProgress();
         btnStartPause.setText(R.string.start);
     }
 
@@ -236,6 +252,14 @@ public class TimerActivity extends AppCompatActivity {
         int seconds = (int) (timeLeftInMillis / 1000) % 60;
         String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
         tvCountdown.setText(timeLeftFormatted);
+    }
+
+    private void updateProgress() {
+        long totalTime = isWorkMode ? workTimeMinutes * 60 * 1000L : breakTimeMinutes * 60 * 1000L;
+        if (totalTime > 0) {
+            int progress = (int) ((timeLeftInMillis * 100) / totalTime);
+            cpiTimer.setProgress(progress);
+        }
     }
 
     private void playAlarmAndVibrate() {
