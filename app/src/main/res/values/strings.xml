@@ -24,9 +24,7 @@
     <string name="default_web_client_id" tools:ignore="MissingTranslation">YOUR_WEB_CLIENT_ID_HERE</string>
     <string name="add_new_task">Add New Task</string>
     <string name="task_description">Task Description</string>
-    <string name="ask_ai">Ask AI for Recommendation</string>
-    <string name="dismiss_ai">Dismiss AI</string>
-    <string name="ai_welcome_text">Describe your task and let AI suggest optimal focus and break durations</string>
+    <string name="ai_prompt_hint">Describe your task for AI recommendations</string>
     <string name="work_min">Work (min)</string>
     <string name="break_min">Break (min)</string>
     <string name="cancel">Cancel</string>
@@ -41,7 +39,7 @@
     <string name="confirm_delete_title">Delete Task</string>
     <string name="confirm_delete_message">Are you sure you want to delete this task?</string>
     <string name="gemini_sparkle">Gemini Sparkle</string>
-    <string name="error_describe_task">Please describe your task to the AI coach first or choose Dismiss AI</string>
+    <string name="error_describe_task">Please describe your task to the AI coach first</string>
     <string name="timer_title">Pomodoro Timer</string>
     <string name="focus_time">Focus Time</string>
     <string name="break_time">Break Time</string>

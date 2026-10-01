@@ -70,9 +70,6 @@ public class AddTaskActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        MaterialButton btnDismissAi = findViewById(R.id.btn_dismiss_ai);
-        MaterialButton btnActivateAi = findViewById(R.id.btn_activate_ai);
-
         com.google.android.material.textfield.TextInputLayout tilManualTitle = findViewById(R.id.til_manual_title);
         EditText etManualTitle = findViewById(R.id.et_manual_title);
 
@@ -106,8 +103,6 @@ public class AddTaskActivity extends AppCompatActivity {
 
             tilManualTitle.setVisibility(View.VISIBLE);
             chatContainer.setVisibility(View.GONE);
-            btnDismissAi.setVisibility(View.GONE);
-            btnActivateAi.setVisibility(View.VISIBLE);
             durationContainer.setVisibility(View.VISIBLE);
 
             etManualTitle.setText(taskToEdit.getTitle());
@@ -119,37 +114,8 @@ public class AddTaskActivity extends AppCompatActivity {
 
             tilManualTitle.setVisibility(View.GONE);
             chatContainer.setVisibility(View.VISIBLE);
-            btnDismissAi.setVisibility(View.VISIBLE);
-            btnActivateAi.setVisibility(View.GONE);
             durationContainer.setVisibility(View.GONE);
         }
-
-        btnDismissAi.setOnClickListener(v -> {
-            tvAiError.setVisibility(View.GONE);
-            tilManualTitle.setError(null);
-            chatContainer.setVisibility(View.GONE);
-            tilManualTitle.setVisibility(View.VISIBLE);
-            durationContainer.setVisibility(View.VISIBLE);
-            btnDismissAi.setVisibility(View.GONE);
-            btnActivateAi.setVisibility(View.VISIBLE);
-
-            android.view.animation.AlphaAnimation fadeIn = new android.view.animation.AlphaAnimation(0.0f, 1.0f);
-            fadeIn.setDuration(500);
-            tilManualTitle.startAnimation(fadeIn);
-            durationContainer.startAnimation(fadeIn);
-        });
-
-        btnActivateAi.setOnClickListener(v -> {
-            tilManualTitle.setError(null);
-            tilManualTitle.setVisibility(View.GONE);
-            chatContainer.setVisibility(View.VISIBLE);
-            btnActivateAi.setVisibility(View.GONE);
-            btnDismissAi.setVisibility(View.VISIBLE);
-
-            android.view.animation.AlphaAnimation fadeIn = new android.view.animation.AlphaAnimation(0.0f, 1.0f);
-            fadeIn.setDuration(500);
-            chatContainer.startAnimation(fadeIn);
-        });
 
         etManualTitle.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -201,7 +167,6 @@ public class AddTaskActivity extends AppCompatActivity {
                         android.view.animation.AlphaAnimation fadeIn = new android.view.animation.AlphaAnimation(0.0f, 1.0f);
                         fadeIn.setDuration(800);
                         durationContainer.startAnimation(fadeIn);
-                        btnDismissAi.setVisibility(View.GONE);
                     }
                 }
 

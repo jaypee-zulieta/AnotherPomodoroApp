@@ -5,24 +5,24 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingHorizontal="4dp"
-    android:paddingVertical="6dp">
+    android:paddingVertical="4dp">
 
     <!-- AI Message Container (Left Aligned with Sparkle Icon) -->
     <LinearLayout
         android:id="@+id/ll_ai_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
         android:layout_marginEnd="48dp"
         android:gravity="start|top"
         android:orientation="horizontal"
         android:visibility="gone">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginTop="4dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="6dp"
             android:contentDescription="@string/gemini_sparkle"
             android:src="@drawable/ic_sparkle"
             app:tint="?attr/colorPrimary" />
@@ -32,10 +32,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_chat_bubble_ai"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="10dp"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:fontFamily="sans-serif"
             android:lineHeight="20sp" />
     </LinearLayout>
@@ -46,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="48dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="4dp"
         android:gravity="end|top"
         android:orientation="horizontal"
         android:visibility="gone">
@@ -56,10 +56,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_chat_bubble_user"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="10dp"
             android:textColor="?attr/colorOnPrimaryContainer"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:fontFamily="sans-serif"
             android:lineHeight="20sp" />
     </LinearLayout>

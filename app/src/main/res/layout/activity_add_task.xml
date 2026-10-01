@@ -43,6 +43,29 @@
             android:paddingTop="8dp"
             android:paddingBottom="100dp">
 
+            <!-- Edit Mode: Title Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_manual_title"
+                style="@style/Widget.App.TextInputLayout.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="@string/task_description"
+                android:visibility="gone"
+                app:boxStrokeWidth="1.5dp"
+                app:boxStrokeWidthFocused="2dp"
+                app:endIconMode="clear_text">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_manual_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:textColor="?attr/colorOnSurface"
+                    android:minHeight="56dp"
+                    android:fontFamily="sans-serif" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- AI Chat Container -->
             <LinearLayout
                 android:id="@+id/ll_chat_container"
@@ -50,62 +73,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="visible">
-
-                <!-- Welcome Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="?attr/colorPrimaryContainer"
-                    app:strokeWidth="0dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="20dp"
-                        android:gravity="center">
-
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
-                            app:cardCornerRadius="28dp"
-                            app:cardBackgroundColor="?attr/colorPrimary"
-                            app:cardElevation="0dp">
-
-                            <ImageView
-                                android:layout_width="28dp"
-                                android:layout_height="28dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_sparkle"
-                                android:tint="?attr/colorOnPrimary" />
-                        </com.google.android.material.card.MaterialCardView>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="@string/ask_ai"
-                            android:textColor="?attr/colorOnPrimaryContainer"
-                            android:textSize="18sp"
-                            android:fontFamily="sans-serif-medium"
-                            android:textAlignment="center" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/ai_welcome_text"
-                            android:textColor="?attr/colorOnPrimaryContainer"
-                            android:textSize="14sp"
-                            android:fontFamily="sans-serif"
-                            android:textAlignment="center"
-                            android:alpha="0.8" />
-
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Chat RecyclerView -->
                 <androidx.recyclerview.widget.RecyclerView
@@ -121,8 +88,8 @@
                 <ProgressBar
                     android:id="@+id/pb_ai_loading"
                     style="@style/Widget.App.ProgressBar.Circular"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginVertical="8dp"
                     android:visibility="gone" />
@@ -160,8 +127,8 @@
                         android:paddingHorizontal="16dp">
 
                         <ImageView
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
                             android:layout_marginEnd="12dp"
                             android:contentDescription="@string/gemini_sparkle"
                             android:src="@drawable/ic_sparkle"
@@ -186,8 +153,8 @@
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_send"
                             style="@style/Widget.Material3.Button"
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:layout_marginStart="8dp"
                             android:insetTop="0dp"
                             android:insetBottom="0dp"
@@ -196,39 +163,16 @@
                             android:minHeight="0dp"
                             android:contentDescription="@string/send"
                             app:icon="@drawable/ic_send"
-                            app:iconSize="20dp"
+                            app:iconSize="18dp"
                             app:iconGravity="textStart"
                             app:iconPadding="0dp"
                             app:iconTint="?attr/colorOnPrimary"
                             app:backgroundTint="?attr/colorPrimary"
-                            app:cornerRadius="22dp" />
+                            app:cornerRadius="20dp" />
 
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
-
-            <!-- Manual Title Input (Visible when AI is dismissed or editing) -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_manual_title"
-                style="@style/Widget.App.TextInputLayout.Outlined"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="@string/task_description"
-                android:visibility="gone"
-                app:boxStrokeWidth="1.5dp"
-                app:boxStrokeWidthFocused="2dp"
-                app:endIconMode="clear_text">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_manual_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textCapSentences|textMultiLine"
-                    android:textColor="?attr/colorOnSurface"
-                    android:minHeight="56dp"
-                    android:fontFamily="sans-serif" />
-            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Duration Container -->
             <LinearLayout
@@ -279,41 +223,6 @@
                         android:textColor="?attr/colorOnSurface"
                         android:fontFamily="sans-serif-medium" />
                 </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-
-            <!-- AI Control Buttons -->
-            <LinearLayout
-                android:id="@+id/ll_ai_controls"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:visibility="visible">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_dismiss_ai"
-                    style="@style/Widget.App.Button.Outlined"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="@string/dismiss_ai"
-                    android:textAllCaps="false"
-                    app:icon="@drawable/ic_close"
-                    app:iconGravity="textStart"
-                    app:iconPadding="8dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_activate_ai"
-                    style="@style/Widget.App.Button.Filled"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:text="@string/ask_ai"
-                    android:textAllCaps="false"
-                    app:icon="@drawable/ic_sparkle"
-                    app:iconGravity="textStart"
-                    app:iconPadding="8dp"
-                    android:visibility="gone" />
             </LinearLayout>
 
         </LinearLayout>
