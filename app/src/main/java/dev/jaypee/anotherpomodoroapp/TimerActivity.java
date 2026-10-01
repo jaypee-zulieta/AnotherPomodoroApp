@@ -31,6 +31,7 @@ public class TimerActivity extends AppCompatActivity {
     public static final String EXTRA_TASK_TITLE = "extra_task_title";
     public static final String EXTRA_WORK_TIME = "extra_work_time";
     public static final String EXTRA_BREAK_TIME = "extra_break_time";
+    public static final String EXTRA_TASK_ID = "extra_task_id";
     private static final String TAG = "TimerActivity";
 
     // Static state to persist across activity pauses/destroys when navigating home
@@ -40,6 +41,7 @@ public class TimerActivity extends AppCompatActivity {
     private static int staticWorkTimeMinutes = 25;
     private static int staticBreakTimeMinutes = 5;
     private static String staticTaskTitle = "Pomodoro Session";
+    private static String staticTaskId = "";
 
     private TextView tvCountdown;
     private Chip chipTimerMode;
@@ -79,14 +81,37 @@ public class TimerActivity extends AppCompatActivity {
             taskTitle = getIntent().getStringExtra(EXTRA_TASK_TITLE);
             workTimeMinutes = getIntent().getIntExtra(EXTRA_WORK_TIME, 25);
             breakTimeMinutes = getIntent().getIntExtra(EXTRA_BREAK_TIME, 5);
+            String incomingTaskId = getIntent().getStringExtra(EXTRA_TASK_ID);
 
-            staticTaskTitle = taskTitle;
-            staticWorkTimeMinutes = workTimeMinutes;
-            staticBreakTimeMinutes = breakTimeMinutes;
-            staticTimerRunning = false;
-            staticWorkMode = true;
-            isWorkMode = true;
-            timeLeftInMillis = workTimeMinutes * 60 * 1000L;
+            // Check if this is the same task that's currently running
+            boolean isSameTask = staticTimerRunning && incomingTaskId != null && incomingTaskId.equals(staticTaskId);
+
+            if (isSameTask) {
+                // Restore the running timer state for the same task
+                taskTitle = staticTaskTitle;
+                workTimeMinutes = staticWorkTimeMinutes;
+                breakTimeMinutes = staticBreakTimeMinutes;
+                isWorkMode = staticWorkMode;
+                long remaining = targetEndTimeMillis - System.currentTimeMillis();
+                if (remaining > 0) {
+                    timeLeftInMillis = remaining;
+                    isTimerRunning = true;
+                } else {
+                    timeLeftInMillis = 0;
+                    isTimerRunning = false;
+                    staticTimerRunning = false;
+                }
+            } else {
+                // New task or no timer running - start fresh
+                staticTaskTitle = taskTitle;
+                staticWorkTimeMinutes = workTimeMinutes;
+                staticBreakTimeMinutes = breakTimeMinutes;
+                staticTaskId = incomingTaskId != null ? incomingTaskId : "";
+                staticTimerRunning = false;
+                staticWorkMode = true;
+                isWorkMode = true;
+                timeLeftInMillis = workTimeMinutes * 60 * 1000L;
+            }
         } else if (staticTimerRunning) {
             taskTitle = staticTaskTitle;
             workTimeMinutes = staticWorkTimeMinutes;
@@ -174,6 +199,7 @@ public class TimerActivity extends AppCompatActivity {
         staticTaskTitle = taskTitle;
         staticWorkTimeMinutes = workTimeMinutes;
         staticBreakTimeMinutes = breakTimeMinutes;
+        // staticTaskId is already set in onCreate
 
         startCountdown(timeLeftInMillis);
         isTimerRunning = true;
