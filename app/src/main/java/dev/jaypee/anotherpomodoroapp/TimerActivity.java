@@ -147,9 +147,8 @@ public class TimerActivity extends AppCompatActivity {
                         timeLeftInMillis = remaining;
                         isTimerRunning = true;
                     } else {
-                        timeLeftInMillis = 0;
-                        isTimerRunning = false;
-                        staticTimerRunning = false;
+                        // Timer already finished while in background — transition to next phase
+                        transitionToNextPhase();
                     }
                 } else {
                     // New task or no timer running - start fresh
@@ -173,9 +172,8 @@ public class TimerActivity extends AppCompatActivity {
                 timeLeftInMillis = remaining;
                 isTimerRunning = true;
             } else {
-                timeLeftInMillis = 0;
-                isTimerRunning = false;
-                staticTimerRunning = false;
+                // Timer already finished while in background — transition to next phase
+                transitionToNextPhase();
             }
         } else {
             timeLeftInMillis = workTimeMinutes * 60 * 1000L;
@@ -216,7 +214,8 @@ public class TimerActivity extends AppCompatActivity {
                 }
                 startCountdown(timeLeftInMillis);
             } else {
-                handleTimerFinished();
+                // Timer already finished while in background — transition to next phase
+                transitionToNextPhase();
             }
         }
     }
@@ -242,9 +241,7 @@ public class TimerActivity extends AppCompatActivity {
         isTimerRunning = true;
         btnStartPause.setText(R.string.pause);
 
-        if (isWorkMode) {
-            scheduleWorkAlarm();
-        }
+        scheduleAlarm();
     }
 
     private void startCountdown(long millisInFuture) {
@@ -274,7 +271,7 @@ public class TimerActivity extends AppCompatActivity {
         staticTimerRunning = false;
         btnStartPause.setText(R.string.start);
         playAlarmAndVibrate();
-        cancelWorkAlarm();
+        cancelAlarm();
 
         if (isWorkMode) {
             Intent alarmIntent = new Intent(this, PomodoroAlarmReceiver.class);
@@ -285,23 +282,35 @@ public class TimerActivity extends AppCompatActivity {
             sendBroadcast(alarmIntent);
 
             Toast.makeText(TimerActivity.this, "Focus session finished! Time for a break.", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(TimerActivity.this, "Break finished! Back to focus.", Toast.LENGTH_LONG).show();
+        }
+
+        transitionToNextPhase();
+    }
+
+    /**
+     * Transitions to the next timer phase (work <-> break) without triggering
+     * alarms, toasts, or broadcasts. Used when restoring state after the timer
+     * has already expired while the activity was in the background.
+     */
+    private void transitionToNextPhase() {
+        if (isWorkMode) {
             isWorkMode = false;
             chipTimerMode.setText(R.string.break_time);
             timeLeftInMillis = breakTimeMinutes * 60 * 1000L;
-            updateCountDownText();
-            updateProgress();
-            updateRingColor();
-            updateThemeColors();
         } else {
-            Toast.makeText(TimerActivity.this, "Break finished! Back to focus.", Toast.LENGTH_LONG).show();
             isWorkMode = true;
             chipTimerMode.setText(R.string.focus_time);
             timeLeftInMillis = workTimeMinutes * 60 * 1000L;
-            updateCountDownText();
-            updateProgress();
-            updateRingColor();
-            updateThemeColors();
         }
+        isTimerRunning = false;
+        staticTimerRunning = false;
+        btnStartPause.setText(R.string.start);
+        updateCountDownText();
+        updateProgress();
+        updateRingColor();
+        updateThemeColors();
     }
 
     private void pauseTimer() {
@@ -311,7 +320,7 @@ public class TimerActivity extends AppCompatActivity {
         isTimerRunning = false;
         staticTimerRunning = false;
         btnStartPause.setText(R.string.resume);
-        cancelWorkAlarm();
+        cancelAlarm();
     }
 
     private void resetTimer() {
@@ -328,17 +337,17 @@ public class TimerActivity extends AppCompatActivity {
         updateRingColor();
         updateThemeColors();
         btnStartPause.setText(R.string.start);
-        cancelWorkAlarm();
+        cancelAlarm();
     }
 
-    private void scheduleWorkAlarm() {
-        if (!isWorkMode) return;
+    private void scheduleAlarm() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, PomodoroAlarmReceiver.class);
         intent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_TITLE, taskTitle);
         intent.putExtra(PomodoroAlarmReceiver.EXTRA_WORK_TIME, workTimeMinutes);
         intent.putExtra(PomodoroAlarmReceiver.EXTRA_BREAK_TIME, breakTimeMinutes);
         intent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_ID, staticTaskId);
+        intent.putExtra(PomodoroAlarmReceiver.EXTRA_IS_WORK_MODE, isWorkMode);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 this,
                 0,
@@ -365,7 +374,7 @@ public class TimerActivity extends AppCompatActivity {
         }
     }
 
-    private void cancelWorkAlarm() {
+    private void cancelAlarm() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, PomodoroAlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(

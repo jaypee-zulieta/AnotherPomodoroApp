@@ -19,6 +19,7 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
     public static final String EXTRA_WORK_TIME = "extra_work_time";
     public static final String EXTRA_BREAK_TIME = "extra_break_time";
     public static final String EXTRA_TASK_ID = "extra_task_id";
+    public static final String EXTRA_IS_WORK_MODE = "extra_is_work_mode";
     private static final String CHANNEL_ID = "pomodoro_alarm_channel";
     private static final int NOTIFICATION_ID = 2001;
 
@@ -62,8 +63,26 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
         int workTime = intent != null ? intent.getIntExtra(EXTRA_WORK_TIME, 25) : 25;
         int breakTime = intent != null ? intent.getIntExtra(EXTRA_BREAK_TIME, 5) : 5;
         String taskId = intent != null ? intent.getStringExtra(EXTRA_TASK_ID) : "";
+        boolean isWorkMode = intent != null ? intent.getBooleanExtra(EXTRA_IS_WORK_MODE, true) : true;
 
         createNotificationChannel(context);
+
+        String notificationTitle;
+        String notificationText;
+        String actionText;
+        boolean openBreak;
+
+        if (isWorkMode) {
+            notificationTitle = "Work Timer Finished!";
+            notificationText = "Focus session ended for: " + taskTitle;
+            actionText = "Start Break";
+            openBreak = true;
+        } else {
+            notificationTitle = "Break Finished!";
+            notificationText = "Break ended for: " + taskTitle;
+            actionText = "Start Focus";
+            openBreak = false;
+        }
 
         // Intent for clicking notification content (opens TimerActivity)
         Intent contentIntent = new Intent(context, TimerActivity.class);
@@ -72,7 +91,7 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
         contentIntent.putExtra(TimerActivity.EXTRA_WORK_TIME, workTime);
         contentIntent.putExtra(TimerActivity.EXTRA_BREAK_TIME, breakTime);
         contentIntent.putExtra(TimerActivity.EXTRA_TASK_ID, taskId);
-        contentIntent.putExtra(TimerActivity.EXTRA_OPEN_BREAK, true);
+        contentIntent.putExtra(TimerActivity.EXTRA_OPEN_BREAK, openBreak);
         PendingIntent contentPendingIntent = PendingIntent.getActivity(
                 context,
                 0,
@@ -90,13 +109,14 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
 
-        // Intent for Start Break action button
+        // Intent for Start Break/Focus action button
         Intent startBreakIntent = new Intent(context, PomodoroAlarmReceiver.class);
         startBreakIntent.setAction(ACTION_START_BREAK);
         startBreakIntent.putExtra(EXTRA_TASK_TITLE, taskTitle);
         startBreakIntent.putExtra(EXTRA_WORK_TIME, workTime);
         startBreakIntent.putExtra(EXTRA_BREAK_TIME, breakTime);
         startBreakIntent.putExtra(EXTRA_TASK_ID, taskId);
+        startBreakIntent.putExtra(EXTRA_IS_WORK_MODE, isWorkMode);
         PendingIntent startBreakPendingIntent = PendingIntent.getBroadcast(
                 context,
                 2,
@@ -106,8 +126,8 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_timer)
-                .setContentTitle("Work Timer Finished!")
-                .setContentText("Focus session ended for: " + taskTitle)
+                .setContentTitle(notificationTitle)
+                .setContentText(notificationText)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
@@ -120,7 +140,7 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
                 ).build())
                 .addAction(new NotificationCompat.Action.Builder(
                         R.drawable.ic_play,
-                        "Start Break",
+                        actionText,
                         startBreakPendingIntent
                 ).build());
 
