@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -29,6 +30,7 @@ public class TimerActivity extends AppCompatActivity {
     public static final String EXTRA_WORK_TIME = "extra_work_time";
     public static final String EXTRA_BREAK_TIME = "extra_break_time";
     public static final String EXTRA_TASK_ID = "extra_task_id";
+    public static final String EXTRA_OPEN_BREAK = "extra_open_break";
 
     // Static state to persist across activity pauses/destroys when navigating home
     private static long targetEndTimeMillis = 0;
@@ -45,6 +47,7 @@ public class TimerActivity extends AppCompatActivity {
     private Button btnStartPause;
     private TextView tvWorkDuration;
     private TextView tvBreakDuration;
+    private TextView tvTimerTaskTitle;
 
     private CountDownTimer countDownTimer;
     private long timeLeftInMillis;
@@ -79,40 +82,84 @@ public class TimerActivity extends AppCompatActivity {
             return insets;
         });
 
-        if (getIntent().hasExtra(EXTRA_TASK_TITLE)) {
-            taskTitle = getIntent().getStringExtra(EXTRA_TASK_TITLE);
-            workTimeMinutes = getIntent().getIntExtra(EXTRA_WORK_TIME, 25);
-            breakTimeMinutes = getIntent().getIntExtra(EXTRA_BREAK_TIME, 5);
-            String incomingTaskId = getIntent().getStringExtra(EXTRA_TASK_ID);
+        tvCountdown = findViewById(R.id.tv_countdown);
+        chipTimerMode = findViewById(R.id.chip_timer_mode);
+        cpiTimer = findViewById(R.id.cpi_timer);
+        tvTimerTaskTitle = findViewById(R.id.tv_timer_task_title);
+        btnStartPause = findViewById(R.id.btn_start_pause);
+        Button btnReset = findViewById(R.id.btn_reset);
+        MaterialButton ibBack = findViewById(R.id.ib_back);
+        tvWorkDuration = findViewById(R.id.tv_work_duration);
+        tvBreakDuration = findViewById(R.id.tv_break_duration);
 
-            // Check if this is the same task that's currently running
-            boolean isSameTask = staticTimerRunning && incomingTaskId != null && incomingTaskId.equals(staticTaskId);
-
-            if (isSameTask) {
-                // Restore the running timer state for the same task
-                taskTitle = staticTaskTitle;
-                workTimeMinutes = staticWorkTimeMinutes;
-                breakTimeMinutes = staticBreakTimeMinutes;
-                isWorkMode = staticWorkMode;
-                long remaining = targetEndTimeMillis - System.currentTimeMillis();
-                if (remaining > 0) {
-                    timeLeftInMillis = remaining;
-                    isTimerRunning = true;
-                } else {
-                    timeLeftInMillis = 0;
-                    isTimerRunning = false;
-                    staticTimerRunning = false;
-                }
+        ibBack.setOnClickListener(v -> finish());
+        btnStartPause.setOnClickListener(v -> {
+            if (isTimerRunning) {
+                pauseTimer();
             } else {
-                // New task or no timer running - start fresh
+                startTimer();
+            }
+        });
+        btnReset.setOnClickListener(v -> resetTimer());
+
+        handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(@NonNull Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent != null && intent.hasExtra(EXTRA_TASK_TITLE)) {
+            taskTitle = intent.getStringExtra(EXTRA_TASK_TITLE);
+            workTimeMinutes = intent.getIntExtra(EXTRA_WORK_TIME, 25);
+            breakTimeMinutes = intent.getIntExtra(EXTRA_BREAK_TIME, 5);
+            String incomingTaskId = intent.getStringExtra(EXTRA_TASK_ID);
+            boolean openBreak = intent.getBooleanExtra(EXTRA_OPEN_BREAK, false);
+
+            if (openBreak) {
+                isWorkMode = false;
+                timeLeftInMillis = breakTimeMinutes * 60 * 1000L;
+                isTimerRunning = false;
+                staticTimerRunning = false;
+                staticWorkMode = false;
                 staticTaskTitle = taskTitle;
                 staticWorkTimeMinutes = workTimeMinutes;
                 staticBreakTimeMinutes = breakTimeMinutes;
                 staticTaskId = incomingTaskId != null ? incomingTaskId : "";
-                staticTimerRunning = false;
-                staticWorkMode = true;
-                isWorkMode = true;
-                timeLeftInMillis = workTimeMinutes * 60 * 1000L;
+            } else {
+                // Check if this is the same task that's currently running
+                boolean isSameTask = staticTimerRunning && incomingTaskId != null && incomingTaskId.equals(staticTaskId);
+
+                if (isSameTask) {
+                    // Restore the running timer state for the same task
+                    taskTitle = staticTaskTitle;
+                    workTimeMinutes = staticWorkTimeMinutes;
+                    breakTimeMinutes = staticBreakTimeMinutes;
+                    isWorkMode = staticWorkMode;
+                    long remaining = targetEndTimeMillis - System.currentTimeMillis();
+                    if (remaining > 0) {
+                        timeLeftInMillis = remaining;
+                        isTimerRunning = true;
+                    } else {
+                        timeLeftInMillis = 0;
+                        isTimerRunning = false;
+                        staticTimerRunning = false;
+                    }
+                } else {
+                    // New task or no timer running - start fresh
+                    staticTaskTitle = taskTitle;
+                    staticWorkTimeMinutes = workTimeMinutes;
+                    staticBreakTimeMinutes = breakTimeMinutes;
+                    staticTaskId = incomingTaskId != null ? incomingTaskId : "";
+                    staticTimerRunning = false;
+                    staticWorkMode = true;
+                    isWorkMode = true;
+                    timeLeftInMillis = workTimeMinutes * 60 * 1000L;
+                }
             }
         } else if (staticTimerRunning) {
             taskTitle = staticTaskTitle;
@@ -132,40 +179,24 @@ public class TimerActivity extends AppCompatActivity {
             timeLeftInMillis = workTimeMinutes * 60 * 1000L;
         }
 
-        tvCountdown = findViewById(R.id.tv_countdown);
-        chipTimerMode = findViewById(R.id.chip_timer_mode);
-        cpiTimer = findViewById(R.id.cpi_timer);
-        TextView tvTimerTaskTitle = findViewById(R.id.tv_timer_task_title);
-        btnStartPause = findViewById(R.id.btn_start_pause);
-        Button btnReset = findViewById(R.id.btn_reset);
-        MaterialButton ibBack = findViewById(R.id.ib_back);
-        tvWorkDuration = findViewById(R.id.tv_work_duration);
-        tvBreakDuration = findViewById(R.id.tv_break_duration);
+        if (tvTimerTaskTitle != null) {
+            tvTimerTaskTitle.setText(taskTitle);
+            chipTimerMode.setText(isWorkMode ? R.string.focus_time : R.string.break_time);
+            tvWorkDuration.setText(workTimeMinutes + " min");
+            tvBreakDuration.setText(breakTimeMinutes + " min");
+            updateCountDownText();
+            updateProgress();
 
-        ibBack.setOnClickListener(v -> finish());
-
-        tvTimerTaskTitle.setText(taskTitle);
-        chipTimerMode.setText(isWorkMode ? R.string.focus_time : R.string.break_time);
-        tvWorkDuration.setText(workTimeMinutes + " min");
-        tvBreakDuration.setText(breakTimeMinutes + " min");
-        updateCountDownText();
-        updateProgress();
-
-        if (isTimerRunning) {
-            btnStartPause.setText(R.string.pause);
-        } else {
-            btnStartPause.setText(R.string.start);
-        }
-
-        btnStartPause.setOnClickListener(v -> {
             if (isTimerRunning) {
-                pauseTimer();
+                btnStartPause.setText(R.string.pause);
+                startCountdown(timeLeftInMillis);
             } else {
-                startTimer();
+                btnStartPause.setText(R.string.start);
+                if (countDownTimer != null) {
+                    countDownTimer.cancel();
+                }
             }
-        });
-
-        btnReset.setOnClickListener(v -> resetTimer());
+        }
     }
 
     @Override
@@ -289,6 +320,9 @@ public class TimerActivity extends AppCompatActivity {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, PomodoroAlarmReceiver.class);
         intent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_TITLE, taskTitle);
+        intent.putExtra(PomodoroAlarmReceiver.EXTRA_WORK_TIME, workTimeMinutes);
+        intent.putExtra(PomodoroAlarmReceiver.EXTRA_BREAK_TIME, breakTimeMinutes);
+        intent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_ID, staticTaskId);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 this,
                 0,

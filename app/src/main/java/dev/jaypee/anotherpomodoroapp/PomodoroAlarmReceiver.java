@@ -16,6 +16,9 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
     public static final String ACTION_DISMISS = "dev.jaypee.anotherpomodoroapp.action.DISMISS_ALARM";
     public static final String ACTION_START_BREAK = "dev.jaypee.anotherpomodoroapp.action.START_BREAK";
     public static final String EXTRA_TASK_TITLE = "extra_task_title";
+    public static final String EXTRA_WORK_TIME = "extra_work_time";
+    public static final String EXTRA_BREAK_TIME = "extra_break_time";
+    public static final String EXTRA_TASK_ID = "extra_task_id";
     private static final String CHANNEL_ID = "pomodoro_alarm_channel";
     private static final int NOTIFICATION_ID = 2001;
 
@@ -30,11 +33,24 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
                 }
                 return;
             } else if (ACTION_START_BREAK.equals(action)) {
-                // Does nothing for now as requested, but dismisses the notification
+                // Dismisses the notification and opens TimerActivity in break mode
                 NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 if (notificationManager != null) {
                     notificationManager.cancel(NOTIFICATION_ID);
                 }
+                String taskTitle = intent.getStringExtra(EXTRA_TASK_TITLE);
+                int workTime = intent.getIntExtra(EXTRA_WORK_TIME, 25);
+                int breakTime = intent.getIntExtra(EXTRA_BREAK_TIME, 5);
+                String taskId = intent.getStringExtra(EXTRA_TASK_ID);
+
+                Intent activityIntent = new Intent(context, TimerActivity.class);
+                activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                activityIntent.putExtra(TimerActivity.EXTRA_TASK_TITLE, taskTitle != null ? taskTitle : "Pomodoro Session");
+                activityIntent.putExtra(TimerActivity.EXTRA_WORK_TIME, workTime);
+                activityIntent.putExtra(TimerActivity.EXTRA_BREAK_TIME, breakTime);
+                activityIntent.putExtra(TimerActivity.EXTRA_TASK_ID, taskId);
+                activityIntent.putExtra(TimerActivity.EXTRA_OPEN_BREAK, true);
+                context.startActivity(activityIntent);
                 return;
             }
         }
@@ -43,12 +59,20 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
         if (taskTitle == null || taskTitle.isEmpty()) {
             taskTitle = "Pomodoro Session";
         }
+        int workTime = intent != null ? intent.getIntExtra(EXTRA_WORK_TIME, 25) : 25;
+        int breakTime = intent != null ? intent.getIntExtra(EXTRA_BREAK_TIME, 5) : 5;
+        String taskId = intent != null ? intent.getStringExtra(EXTRA_TASK_ID) : "";
 
         createNotificationChannel(context);
 
         // Intent for clicking notification content (opens TimerActivity)
         Intent contentIntent = new Intent(context, TimerActivity.class);
         contentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        contentIntent.putExtra(TimerActivity.EXTRA_TASK_TITLE, taskTitle);
+        contentIntent.putExtra(TimerActivity.EXTRA_WORK_TIME, workTime);
+        contentIntent.putExtra(TimerActivity.EXTRA_BREAK_TIME, breakTime);
+        contentIntent.putExtra(TimerActivity.EXTRA_TASK_ID, taskId);
+        contentIntent.putExtra(TimerActivity.EXTRA_OPEN_BREAK, true);
         PendingIntent contentPendingIntent = PendingIntent.getActivity(
                 context,
                 0,
@@ -69,6 +93,10 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
         // Intent for Start Break action button
         Intent startBreakIntent = new Intent(context, PomodoroAlarmReceiver.class);
         startBreakIntent.setAction(ACTION_START_BREAK);
+        startBreakIntent.putExtra(EXTRA_TASK_TITLE, taskTitle);
+        startBreakIntent.putExtra(EXTRA_WORK_TIME, workTime);
+        startBreakIntent.putExtra(EXTRA_BREAK_TIME, breakTime);
+        startBreakIntent.putExtra(EXTRA_TASK_ID, taskId);
         PendingIntent startBreakPendingIntent = PendingIntent.getBroadcast(
                 context,
                 2,
