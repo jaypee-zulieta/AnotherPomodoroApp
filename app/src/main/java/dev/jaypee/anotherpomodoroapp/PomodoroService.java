@@ -8,9 +8,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.IBinder;
@@ -282,19 +279,6 @@ public class PomodoroService extends Service {
     }
 
     private void playAlarmAndVibrate() {
-        try {
-            Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-            if (alarmUri == null) {
-                alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            }
-            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), alarmUri);
-            if (r != null) {
-                r.play();
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error playing alarm sound", e);
-        }
-
         try {
             Vibrator vibrator;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

@@ -1,8 +1,5 @@
 package dev.jaypee.anotherpomodoroapp;
 
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -289,19 +286,6 @@ public class TimerActivity extends AppCompatActivity {
     }
 
     private void playAlarmAndVibrate() {
-        try {
-            Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-            if (alarmUri == null) {
-                alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            }
-            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), alarmUri);
-            if (r != null) {
-                r.play();
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error playing alarm sound", e);
-        }
-
         try {
             Vibrator vibrator;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
