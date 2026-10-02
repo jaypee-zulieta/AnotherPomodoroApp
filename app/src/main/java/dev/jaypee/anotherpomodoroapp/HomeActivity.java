@@ -3,8 +3,6 @@ package dev.jaypee.anotherpomodoroapp;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -111,40 +109,44 @@ public class HomeActivity extends AppCompatActivity {
             });
         }
 
-        setupToolbar();
-        setupBottomNavigation(user);
+        setupToolbar(user);
         listenForTasks(user.getUid());
     }
 
-    private void setupToolbar() {
+    private void setupToolbar(FirebaseUser user) {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> {
-            startActivity(new Intent(HomeActivity.this, TimerActivity.class));
-        });
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_home, menu);
-        return true;
-    }
+        ImageView profileImageView = findViewById(R.id.iv_profile);
+        TextView initialTextView = findViewById(R.id.tv_profile_initial);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            Toast.makeText(this, "Settings coming soon", Toast.LENGTH_SHORT).show();
-            return true;
-        } else if (id == R.id.action_logout) {
-            firebaseAuth.signOut();
-            Intent intent = new Intent(HomeActivity.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
-            return true;
+        Uri photoUrl = user.getPhotoUrl();
+        String name = user.getDisplayName();
+
+        if (photoUrl != null) {
+            initialTextView.setVisibility(View.GONE);
+            profileImageView.setVisibility(View.VISIBLE);
+            Glide.with(this)
+                    .load(photoUrl)
+                    .circleCrop()
+                    .into(profileImageView);
+        } else {
+            profileImageView.setVisibility(View.GONE);
+            initialTextView.setVisibility(View.VISIBLE);
+            if (name != null && !name.isEmpty()) {
+                initialTextView.setText(String.valueOf(name.charAt(0)).toUpperCase());
+            } else {
+                initialTextView.setText("?");
+            }
         }
-        return super.onOptionsItemSelected(item);
+
+        profileImageView.setOnClickListener(v -> {
+            startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
+        });
+
+        initialTextView.setOnClickListener(v -> {
+            startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
+        });
     }
 
     private void listenForTasks(String userId) {
@@ -185,45 +187,4 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void setupBottomNavigation(FirebaseUser user) {
-        ImageView profileImageView = findViewById(R.id.iv_nav_profile);
-        TextView initialTextView = findViewById(R.id.tv_nav_initial);
-
-        Uri photoUrl = user.getPhotoUrl();
-        String name = user.getDisplayName();
-
-        if (photoUrl != null) {
-            initialTextView.setVisibility(View.GONE);
-            profileImageView.setVisibility(View.VISIBLE);
-            Glide.with(this)
-                    .load(photoUrl)
-                    .circleCrop()
-                    .into(profileImageView);
-        } else {
-            profileImageView.setVisibility(View.GONE);
-            initialTextView.setVisibility(View.VISIBLE);
-            if (name != null && !name.isEmpty()) {
-                initialTextView.setText(String.valueOf(name.charAt(0)).toUpperCase());
-            } else {
-                initialTextView.setText("?");
-            }
-        }
-
-        MaterialButton btnNavProfile = findViewById(R.id.btn_nav_profile);
-        if (btnNavProfile != null) {
-            btnNavProfile.setOnClickListener(v -> {
-                startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
-            });
-        }
-
-        profileImageView.setOnClickListener(v -> {
-            startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
-        });
-
-        initialTextView.setOnClickListener(v -> {
-            startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
-        });
-
-
-    }
 }
