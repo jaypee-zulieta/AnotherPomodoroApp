@@ -1,5 +1,10 @@
 package dev.jaypee.anotherpomodoroapp;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.widget.Button;
@@ -55,6 +60,12 @@ public class TimerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_timer);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_timer), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -195,6 +206,10 @@ public class TimerActivity extends AppCompatActivity {
         startCountdown(timeLeftInMillis);
         isTimerRunning = true;
         btnStartPause.setText(R.string.pause);
+
+        if (isWorkMode) {
+            scheduleWorkAlarm();
+        }
     }
 
     private void startCountdown(long millisInFuture) {
@@ -224,6 +239,7 @@ public class TimerActivity extends AppCompatActivity {
         staticTimerRunning = false;
         btnStartPause.setText(R.string.start);
         playAlarmAndVibrate();
+        cancelWorkAlarm();
 
         if (isWorkMode) {
             Toast.makeText(TimerActivity.this, "Focus session finished! Time for a break.", Toast.LENGTH_LONG).show();
@@ -250,6 +266,7 @@ public class TimerActivity extends AppCompatActivity {
         isTimerRunning = false;
         staticTimerRunning = false;
         btnStartPause.setText(R.string.resume);
+        cancelWorkAlarm();
     }
 
     private void resetTimer() {
@@ -264,6 +281,52 @@ public class TimerActivity extends AppCompatActivity {
         updateCountDownText();
         updateProgress();
         btnStartPause.setText(R.string.start);
+        cancelWorkAlarm();
+    }
+
+    private void scheduleWorkAlarm() {
+        if (!isWorkMode) return;
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, PomodoroAlarmReceiver.class);
+        intent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_TITLE, taskTitle);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+        if (alarmManager != null) {
+            long triggerTime = System.currentTimeMillis() + timeLeftInMillis;
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (alarmManager.canScheduleExactAlarms()) {
+                        AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(triggerTime, pendingIntent);
+                        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent);
+                    } else {
+                        alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
+                    }
+                } else {
+                    AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(triggerTime, pendingIntent);
+                    alarmManager.setAlarmClock(alarmClockInfo, pendingIntent);
+                }
+            } catch (SecurityException e) {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
+            }
+        }
+    }
+
+    private void cancelWorkAlarm() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, PomodoroAlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+        if (alarmManager != null) {
+            alarmManager.cancel(pendingIntent);
+        }
     }
 
     private void updateCountDownText() {
