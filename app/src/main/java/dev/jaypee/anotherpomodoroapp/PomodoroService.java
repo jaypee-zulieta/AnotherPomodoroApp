@@ -11,10 +11,6 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.IBinder;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
-import android.os.VibratorManager;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -24,7 +20,6 @@ import java.util.Locale;
 
 public class PomodoroService extends Service {
 
-    private static final String TAG = "PomodoroService";
     private static final String CHANNEL_ID = "pomodoro_channel";
     private static final int NOTIFICATION_ID = 1001;
 
@@ -285,26 +280,5 @@ public class PomodoroService extends Service {
     }
 
     private void playAlarmAndVibrate() {
-        try {
-            Vibrator vibrator;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                VibratorManager vibratorManager = (VibratorManager) getSystemService(VIBRATOR_MANAGER_SERVICE);
-                vibrator = vibratorManager != null ? vibratorManager.getDefaultVibrator() : null;
-            } else {
-                vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-            }
-
-            if (vibrator != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 500, 200, 500}, -1));
-                } else {
-                    @SuppressWarnings("deprecation")
-                    long[] pattern = {0, 500, 200, 500};
-                    vibrator.vibrate(pattern, -1);
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error vibrating device", e);
-        }
     }
 }

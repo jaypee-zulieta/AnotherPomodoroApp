@@ -1,12 +1,7 @@
 package dev.jaypee.anotherpomodoroapp;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
-import android.os.VibratorManager;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +24,6 @@ public class TimerActivity extends AppCompatActivity {
     public static final String EXTRA_WORK_TIME = "extra_work_time";
     public static final String EXTRA_BREAK_TIME = "extra_break_time";
     public static final String EXTRA_TASK_ID = "extra_task_id";
-    private static final String TAG = "TimerActivity";
 
     // Static state to persist across activity pauses/destroys when navigating home
     private static long targetEndTimeMillis = 0;
@@ -288,26 +282,5 @@ public class TimerActivity extends AppCompatActivity {
     }
 
     private void playAlarmAndVibrate() {
-        try {
-            Vibrator vibrator;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                VibratorManager vibratorManager = (VibratorManager) getSystemService(VIBRATOR_MANAGER_SERVICE);
-                vibrator = vibratorManager != null ? vibratorManager.getDefaultVibrator() : null;
-            } else {
-                vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-            }
-
-            if (vibrator != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 500, 200, 500}, -1));
-                } else {
-                    @SuppressWarnings("deprecation")
-                    long[] pattern = {0, 500, 200, 500};
-                    vibrator.vibrate(pattern, -1);
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error vibrating device", e);
-        }
     }
 }
