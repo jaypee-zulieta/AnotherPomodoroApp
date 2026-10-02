@@ -2,6 +2,7 @@ package dev.jaypee.anotherpomodoroapp;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -88,6 +89,10 @@ public class AddTaskActivity extends AppCompatActivity {
         Button btnCancel = findViewById(R.id.btn_cancel);
         Button btnSaveTask = findViewById(R.id.btn_save_task);
 
+        MaterialButton btnDismissAi = findViewById(R.id.btn_dismiss_ai);
+        MaterialButton btnActivateAi = findViewById(R.id.btn_activate_ai);
+        com.google.android.material.card.MaterialCardView cardChatInput = findViewById(R.id.card_chat_input);
+
         btnCancel.setOnClickListener(v -> finish());
 
         ChatAdapter chatAdapter = new ChatAdapter(Markwon.create(this));
@@ -102,6 +107,8 @@ public class AddTaskActivity extends AppCompatActivity {
         if (isEditing) {
             btnSaveTask.setText(R.string.save_changes);
             btnDelete.setVisibility(View.VISIBLE);
+            btnDismissAi.setVisibility(View.GONE);
+            btnActivateAi.setVisibility(View.GONE);
 
             tilManualTitle.setVisibility(View.VISIBLE);
             chatContainer.setVisibility(View.GONE);
@@ -113,11 +120,42 @@ public class AddTaskActivity extends AppCompatActivity {
         } else {
             btnSaveTask.setText(R.string.add_task);
             btnDelete.setVisibility(View.GONE);
+            btnDismissAi.setVisibility(View.VISIBLE);
+            btnActivateAi.setVisibility(View.GONE);
 
             tilManualTitle.setVisibility(View.GONE);
             chatContainer.setVisibility(View.VISIBLE);
             durationContainer.setVisibility(View.GONE);
         }
+
+        btnDismissAi.setOnClickListener(v -> {
+            tilManualTitle.setError(null);
+            tvAiError.setVisibility(View.GONE);
+            chatContainer.setVisibility(View.GONE);
+            tilManualTitle.setVisibility(View.VISIBLE);
+            durationContainer.setVisibility(View.VISIBLE);
+            cardChatInput.setVisibility(View.GONE);
+            btnDismissAi.setVisibility(View.GONE);
+            btnActivateAi.setVisibility(View.VISIBLE);
+
+            AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+            fadeIn.setDuration(500);
+            tilManualTitle.startAnimation(fadeIn);
+            durationContainer.startAnimation(fadeIn);
+        });
+
+        btnActivateAi.setOnClickListener(v -> {
+            tilManualTitle.setError(null);
+            tilManualTitle.setVisibility(View.GONE);
+            chatContainer.setVisibility(View.VISIBLE);
+            cardChatInput.setVisibility(View.VISIBLE);
+            btnActivateAi.setVisibility(View.GONE);
+            btnDismissAi.setVisibility(View.VISIBLE);
+
+            AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+            fadeIn.setDuration(500);
+            chatContainer.startAnimation(fadeIn);
+        });
 
         etManualTitle.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
