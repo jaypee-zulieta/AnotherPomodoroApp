@@ -3,6 +3,8 @@ package dev.jaypee.anotherpomodoroapp;
 import static com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.MutableContextWrapper;
 import androidx.credentials.exceptions.GetCredentialException;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -31,13 +33,19 @@ import java.util.concurrent.Executors;
 public class GoogleSignInLauncher {
 
     private final Activity activity;
+    private final MutableContextWrapper contextWrapper;
     private final FirebaseAuth firebaseAuth;
     private final CredentialManager credentialManager;
 
     public GoogleSignInLauncher(Activity activity) {
         this.activity = activity;
+        this.contextWrapper = new MutableContextWrapper(activity);
         firebaseAuth = FirebaseAuth.getInstance();
-        credentialManager = CredentialManager.create(this.activity.getBaseContext());
+        credentialManager = CredentialManager.create(this.contextWrapper);
+    }
+
+    public void updateContext(Context context) {
+        contextWrapper.setBaseContext(context);
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
@@ -60,7 +68,7 @@ public class GoogleSignInLauncher {
 
     public void launch() {
         GetSignInWithGoogleOption signInWithGoogleOption = new GetSignInWithGoogleOption
-                .Builder(activity.getString(R.string.default_web_client_id))
+                .Builder(contextWrapper.getString(R.string.default_web_client_id))
                 .setNonce(generateSecureNonce())
                 .build();
 
@@ -69,7 +77,7 @@ public class GoogleSignInLauncher {
                 .build();
 
         credentialManager.getCredentialAsync(
-                this.activity.getBaseContext(),
+                contextWrapper,
                 request,
                 new CancellationSignal(),
                 Executors.newSingleThreadExecutor(),
