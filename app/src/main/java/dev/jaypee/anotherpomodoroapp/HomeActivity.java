@@ -38,6 +38,11 @@ public class HomeActivity extends AppCompatActivity {
     private RecyclerView rvTasks;
     private MaterialCardView cvEmptyState;
 
+    // Selection mode views
+    private View selectionActionBar;
+    private TextView tvSelectionCount;
+    private MaterialButton btnSelectAll, btnDeleteSelected, btnCloseSelection;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +71,13 @@ public class HomeActivity extends AppCompatActivity {
         cvEmptyState = findViewById(R.id.cv_empty_state);
         FloatingActionButton fabAddTask = findViewById(R.id.fab_add_task);
 
+        // Selection action bar
+        selectionActionBar = findViewById(R.id.selection_action_bar);
+        tvSelectionCount = findViewById(R.id.tv_selection_count);
+        btnSelectAll = findViewById(R.id.btn_select_all);
+        btnDeleteSelected = findViewById(R.id.btn_delete_selected);
+        btnCloseSelection = findViewById(R.id.btn_close_selection);
+
         taskAdapter = new TaskAdapter();
         taskAdapter.setOnTaskActionListener(new TaskAdapter.OnTaskActionListener() {
             @Override
@@ -91,6 +103,32 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        taskAdapter.setOnTaskSelectionListener(new TaskAdapter.OnTaskSelectionListener() {
+            @Override
+            public void onSelectionModeChanged(boolean active) {
+                if (active) {
+                    selectionActionBar.setVisibility(View.VISIBLE);
+                    fabAddTask.hide();
+                } else {
+                    selectionActionBar.setVisibility(View.GONE);
+                    fabAddTask.show();
+                }
+            }
+
+            @Override
+            public void onSelectionCountChanged(int count) {
+                tvSelectionCount.setText(count + " selected");
+                btnDeleteSelected.setEnabled(count > 0);
+            }
+        });
+
+        btnSelectAll.setOnClickListener(v -> taskAdapter.selectAll());
+
+        btnDeleteSelected.setOnClickListener(v -> confirmDeleteSelected());
+
+        btnCloseSelection.setOnClickListener(v -> taskAdapter.clearSelection());
+
         rvTasks.setLayoutManager(new LinearLayoutManager(this));
         rvTasks.setAdapter(taskAdapter);
 
@@ -174,6 +212,37 @@ public class HomeActivity extends AppCompatActivity {
                     }, e -> {
                         Toast.makeText(HomeActivity.this, "Failed to delete task: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void confirmDeleteSelected() {
+        List<PomodoroTask> selectedTasks = taskAdapter.getSelectedTasks();
+        if (selectedTasks.isEmpty()) return;
+
+        new AlertDialog.Builder(this)
+                .setTitle("Delete " + selectedTasks.size() + " Tasks")
+                .setMessage("Are you sure you want to delete " + selectedTasks.size() + " selected tasks?")
+                .setPositiveButton(R.string.delete_task, (dialog, which) -> {
+                    int[] successCount = {0};
+                    int[] failCount = {0};
+                    int total = selectedTasks.size();
+
+                    for (PomodoroTask task : selectedTasks) {
+                        firestoreService.deleteTask(task.getId(), aVoid -> {
+                            successCount[0]++;
+                            if (successCount[0] + failCount[0] == total) {
+                                Toast.makeText(HomeActivity.this, successCount[0] + " tasks deleted", Toast.LENGTH_SHORT).show();
+                                taskAdapter.clearSelection();
+                            }
+                        }, e -> {
+                            failCount[0]++;
+                            if (successCount[0] + failCount[0] == total) {
+                                Toast.makeText(HomeActivity.this, "Failed to delete " + failCount[0] + " tasks", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();

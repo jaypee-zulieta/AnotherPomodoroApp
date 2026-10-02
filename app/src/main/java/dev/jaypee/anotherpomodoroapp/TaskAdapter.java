@@ -9,11 +9,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.chip.Chip;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
@@ -23,15 +26,99 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         void onTaskStartTimer(PomodoroTask task);
     }
 
+    public interface OnTaskSelectionListener {
+        void onSelectionModeChanged(boolean active);
+        void onSelectionCountChanged(int count);
+    }
+
     private List<PomodoroTask> tasks = new ArrayList<>();
     private OnTaskActionListener listener;
+    private OnTaskSelectionListener selectionListener;
+    private boolean selectionMode = false;
+    private Set<String> selectedTaskIds = new HashSet<>();
 
     public void setOnTaskActionListener(OnTaskActionListener listener) {
         this.listener = listener;
     }
 
+    public void setOnTaskSelectionListener(OnTaskSelectionListener listener) {
+        this.selectionListener = listener;
+    }
+
     public void setTasks(List<PomodoroTask> tasks) {
         this.tasks = tasks;
+        // Remove selections for tasks that no longer exist
+        Set<String> currentIds = new HashSet<>();
+        for (PomodoroTask task : tasks) {
+            currentIds.add(task.getId());
+        }
+        selectedTaskIds.retainAll(currentIds);
+        notifyDataSetChanged();
+    }
+
+    public boolean isSelectionMode() {
+        return selectionMode;
+    }
+
+    public int getSelectedCount() {
+        return selectedTaskIds.size();
+    }
+
+    public List<PomodoroTask> getSelectedTasks() {
+        List<PomodoroTask> selected = new ArrayList<>();
+        for (PomodoroTask task : tasks) {
+            if (selectedTaskIds.contains(task.getId())) {
+                selected.add(task);
+            }
+        }
+        return selected;
+    }
+
+    public void toggleSelection(String taskId) {
+        if (selectedTaskIds.contains(taskId)) {
+            selectedTaskIds.remove(taskId);
+        } else {
+            selectedTaskIds.add(taskId);
+        }
+        if (selectedTaskIds.isEmpty()) {
+            selectionMode = false;
+            if (selectionListener != null) {
+                selectionListener.onSelectionModeChanged(false);
+            }
+        }
+        if (selectionListener != null) {
+            selectionListener.onSelectionCountChanged(selectedTaskIds.size());
+        }
+        notifyDataSetChanged();
+    }
+
+    public void selectAll() {
+        for (PomodoroTask task : tasks) {
+            selectedTaskIds.add(task.getId());
+        }
+        if (selectionListener != null) {
+            selectionListener.onSelectionCountChanged(selectedTaskIds.size());
+        }
+        notifyDataSetChanged();
+    }
+
+    public void clearSelection() {
+        selectedTaskIds.clear();
+        selectionMode = false;
+        if (selectionListener != null) {
+            selectionListener.onSelectionModeChanged(false);
+            selectionListener.onSelectionCountChanged(0);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void enterSelectionMode(String taskId) {
+        selectionMode = true;
+        selectedTaskIds.add(taskId);
+        if (selectionListener != null) {
+            selectionListener.onSelectionModeChanged(true);
+            selectionListener.onSelectionCountChanged(selectedTaskIds.size());
+        }
         notifyDataSetChanged();
     }
 
@@ -49,10 +136,28 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         holder.chipDuration.setText(task.getWorkTime() + " min / " + task.getBreakTime() + " min");
         holder.tvDescription.setText("Duration: " + task.getWorkTime() + " mins focus, " + task.getBreakTime() + " mins break");
 
+        // Checkbox state
+        boolean isSelected = selectedTaskIds.contains(task.getId());
+        holder.cbSelect.setChecked(isSelected);
+        holder.cbSelect.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
+
+        // Item click behavior
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
+            if (selectionMode) {
+                toggleSelection(task.getId());
+            } else if (listener != null) {
                 listener.onTaskStartTimer(task);
             }
+        });
+
+        // Long press to enter selection mode
+        holder.itemView.setOnLongClickListener(v -> {
+            if (!selectionMode) {
+                enterSelectionMode(task.getId());
+            } else {
+                toggleSelection(task.getId());
+            }
+            return true;
         });
 
         holder.btnStartTimer.setOnClickListener(v -> {
@@ -90,6 +195,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         TextView tvTitle, tvDescription;
         Chip chipDuration;
         MaterialButton btnStartTimer, btnEdit, btnDelete;
+        MaterialCheckBox cbSelect;
 
         public TaskViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -99,6 +205,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             btnStartTimer = itemView.findViewById(R.id.btn_start_timer);
             btnEdit = itemView.findViewById(R.id.btn_edit_task);
             btnDelete = itemView.findViewById(R.id.btn_delete_task);
+            cbSelect = itemView.findViewById(R.id.cb_task_select);
         }
     }
 }

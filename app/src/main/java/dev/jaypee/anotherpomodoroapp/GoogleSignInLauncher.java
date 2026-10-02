@@ -3,7 +3,6 @@ package dev.jaypee.anotherpomodoroapp;
 import static com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.MutableContextWrapper;
 import androidx.credentials.exceptions.GetCredentialException;
 import android.os.Bundle;

@@ -61,6 +61,74 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- Selection Action Bar (visible during multi-select mode) -->
+    <LinearLayout
+        android:id="@+id/selection_action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimaryContainer"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="8dp"
+        android:paddingEnd="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/app_bar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_close_selection"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            android:contentDescription="@string/cancel"
+            app:icon="@drawable/ic_close"
+            app:iconSize="20dp"
+            app:iconTint="?attr/colorOnPrimaryContainer"
+            app:cornerRadius="20dp" />
+
+        <TextView
+            android:id="@+id/tv_selection_count"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="0 selected"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_select_all"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="@string/select_all"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            android:textSize="13sp"
+            app:icon="@drawable/ic_select_all"
+            app:iconTint="?attr/colorOnPrimaryContainer"
+            app:iconSize="18dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_delete_selected"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginStart="4dp"
+            android:text="@string/delete_task"
+            android:textColor="@color/md_sys_color_error"
+            android:textSize="13sp"
+            android:enabled="false"
+            app:icon="@drawable/ic_delete"
+            app:iconTint="@color/md_sys_color_error"
+            app:iconSize="18dp" />
+
+    </LinearLayout>
+
     <!-- Content Area (RecyclerView) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_tasks"
