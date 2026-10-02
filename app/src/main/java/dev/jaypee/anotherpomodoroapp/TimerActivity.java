@@ -286,7 +286,6 @@ public class TimerActivity extends AppCompatActivity {
             timeLeftInMillis = workTimeMinutes * 60 * 1000L;
             updateCountDownText();
             updateProgress();
-            startTimer();
         }
     }
 
