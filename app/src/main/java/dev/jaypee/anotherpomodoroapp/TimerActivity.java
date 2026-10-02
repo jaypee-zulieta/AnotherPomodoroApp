@@ -236,15 +236,17 @@ public class TimerActivity extends AppCompatActivity {
             isWorkMode = false;
             chipTimerMode.setText(R.string.break_time);
             timeLeftInMillis = breakTimeMinutes * 60 * 1000L;
+            updateCountDownText();
+            updateProgress();
         } else {
             Toast.makeText(TimerActivity.this, "Break finished! Back to focus.", Toast.LENGTH_LONG).show();
             isWorkMode = true;
             chipTimerMode.setText(R.string.focus_time);
             timeLeftInMillis = workTimeMinutes * 60 * 1000L;
+            updateCountDownText();
+            updateProgress();
+            startTimer();
         }
-        updateCountDownText();
-        updateProgress();
-        startTimer();
     }
 
     private void pauseTimer() {

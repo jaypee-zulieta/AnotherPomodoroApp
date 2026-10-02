@@ -235,13 +235,19 @@ public class PomodoroService extends Service {
         if (isWorkMode) {
             isWorkMode = false;
             timeLeftInMillis = breakTimeMillis;
+            staticIsWorkMode = isWorkMode;
+            staticTimeLeftInMillis = timeLeftInMillis;
+            isRunning = false;
+            staticIsRunning = false;
+            updateNotification(formatTime(timeLeftInMillis) + " (Paused)");
+            broadcastUpdate();
         } else {
             isWorkMode = true;
             timeLeftInMillis = workTimeMillis;
+            staticIsWorkMode = isWorkMode;
+            staticTimeLeftInMillis = timeLeftInMillis;
+            startTimer();
         }
-        staticIsWorkMode = isWorkMode;
-        staticTimeLeftInMillis = timeLeftInMillis;
-        startTimer();
     }
 
     private void stopForegroundService() {
