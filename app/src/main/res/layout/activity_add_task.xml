@@ -258,57 +258,50 @@
     </LinearLayout>
 
     <!-- Bottom Action Bar -->
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="0dp"
-        app:cardElevation="8dp"
-        app:cardBackgroundColor="?attr/colorSurface"
-        app:strokeWidth="0dp">
+        android:background="?attr/colorSurface"
+        android:elevation="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_delete_task"
+            style="@style/Widget.App.Button.Text"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="20dp"
-            android:paddingVertical="16dp">
+            android:text="@string/delete_task"
+            android:textColor="@color/md_sys_color_error"
+            android:visibility="gone" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_delete_task"
-                style="@style/Widget.App.Button.Text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/delete_task"
-                android:textColor="@color/md_sys_color_error"
-                android:visibility="gone" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel"
+            style="@style/Widget.App.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="@string/cancel"
+            android:textAllCaps="false" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_cancel"
-                style="@style/Widget.App.Button.Text"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="@string/cancel"
-                android:textAllCaps="false" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_save_task"
+            style="@style/Widget.App.Button.Filled"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginStart="12dp"
+            android:text="@string/add_task"
+            android:textAllCaps="false"
+            app:icon="@drawable/ic_check"
+            app:iconGravity="textEnd"
+            app:iconPadding="8dp" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_save_task"
-                style="@style/Widget.App.Button.Filled"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginStart="12dp"
-                android:text="@string/add_task"
-                android:textAllCaps="false"
-                app:icon="@drawable/ic_check"
-                app:iconGravity="textEnd"
-                app:iconPadding="8dp" />
-
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
 
 </LinearLayout>
