@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.content.res.ColorStateList;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,7 +45,8 @@ public class TimerActivity extends AppCompatActivity {
     private TextView tvCountdown;
     private Chip chipTimerMode;
     private CircularProgressView cpiTimer;
-    private Button btnStartPause;
+    private MaterialButton btnStartPause;
+    private MaterialButton btnReset;
     private TextView tvWorkDuration;
     private TextView tvBreakDuration;
     private TextView tvTimerTaskTitle;
@@ -87,7 +89,7 @@ public class TimerActivity extends AppCompatActivity {
         cpiTimer = findViewById(R.id.cpi_timer);
         tvTimerTaskTitle = findViewById(R.id.tv_timer_task_title);
         btnStartPause = findViewById(R.id.btn_start_pause);
-        Button btnReset = findViewById(R.id.btn_reset);
+        btnReset = findViewById(R.id.btn_reset);
         MaterialButton ibBack = findViewById(R.id.ib_back);
         tvWorkDuration = findViewById(R.id.tv_work_duration);
         tvBreakDuration = findViewById(R.id.tv_break_duration);
@@ -186,6 +188,8 @@ public class TimerActivity extends AppCompatActivity {
             tvBreakDuration.setText(breakTimeMinutes + " min");
             updateCountDownText();
             updateProgress();
+            updateRingColor();
+            updateThemeColors();
 
             if (isTimerRunning) {
                 btnStartPause.setText(R.string.pause);
@@ -286,6 +290,8 @@ public class TimerActivity extends AppCompatActivity {
             timeLeftInMillis = breakTimeMinutes * 60 * 1000L;
             updateCountDownText();
             updateProgress();
+            updateRingColor();
+            updateThemeColors();
         } else {
             Toast.makeText(TimerActivity.this, "Break finished! Back to focus.", Toast.LENGTH_LONG).show();
             isWorkMode = true;
@@ -293,6 +299,8 @@ public class TimerActivity extends AppCompatActivity {
             timeLeftInMillis = workTimeMinutes * 60 * 1000L;
             updateCountDownText();
             updateProgress();
+            updateRingColor();
+            updateThemeColors();
         }
     }
 
@@ -317,6 +325,8 @@ public class TimerActivity extends AppCompatActivity {
         timeLeftInMillis = workTimeMinutes * 60 * 1000L;
         updateCountDownText();
         updateProgress();
+        updateRingColor();
+        updateThemeColors();
         btnStartPause.setText(R.string.start);
         cancelWorkAlarm();
     }
@@ -381,6 +391,31 @@ public class TimerActivity extends AppCompatActivity {
         if (totalTime > 0) {
             int progress = (int) ((timeLeftInMillis * 100) / totalTime);
             cpiTimer.setProgress(progress);
+        }
+    }
+
+    private void updateRingColor() {
+        int colorRes = isWorkMode ? R.color.focus_accent : R.color.break_accent;
+        cpiTimer.setColor(getResources().getColor(colorRes, getTheme()));
+    }
+
+    private void updateThemeColors() {
+        if (isWorkMode) {
+            // Focus mode - use default theme colors
+            chipTimerMode.setChipBackgroundColorResource(R.color.md_sys_color_primary_container);
+            chipTimerMode.setTextColor(getResources().getColor(R.color.md_sys_color_on_primary_container, getTheme()));
+            btnStartPause.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.focus_accent, getTheme())));
+            btnStartPause.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.white, getTheme())));
+            btnReset.setTextColor(getResources().getColor(R.color.focus_accent, getTheme()));
+            btnReset.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.focus_accent, getTheme())));
+        } else {
+            // Break mode - use cool blue colors
+            chipTimerMode.setChipBackgroundColorResource(R.color.break_accent_container);
+            chipTimerMode.setTextColor(getResources().getColor(R.color.break_accent_on_container, getTheme()));
+            btnStartPause.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.break_accent, getTheme())));
+            btnStartPause.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.white, getTheme())));
+            btnReset.setTextColor(getResources().getColor(R.color.break_accent, getTheme()));
+            btnReset.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.break_accent, getTheme())));
         }
     }
 

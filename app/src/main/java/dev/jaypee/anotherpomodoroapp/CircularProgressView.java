@@ -50,6 +50,12 @@ public class CircularProgressView extends View {
         paint.setStrokeWidth(strokeWidth);
     }
 
+    public void setColor(int color) {
+        this.color = color;
+        paint.setColor(color);
+        invalidate();
+    }
+
     public void setProgress(int progress) {
         this.progress = progress;
         invalidate();

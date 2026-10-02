@@ -65,7 +65,7 @@
 
     <!-- Custom semantic colors -->
     <color name="focus_accent">@color/md_sys_color_primary</color>
-    <color name="break_accent">#81C784</color>
-    <color name="break_accent_container">#1B5E20</color>
-    <color name="break_accent_on_container">#C8E6C9</color>
+    <color name="break_accent">#64B5F6</color>
+    <color name="break_accent_container">#0D47A1</color>
+    <color name="break_accent_on_container">#BBDEFB</color>
 </resources>
