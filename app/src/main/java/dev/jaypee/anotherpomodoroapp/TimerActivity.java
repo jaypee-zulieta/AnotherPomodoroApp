@@ -273,6 +273,13 @@ public class TimerActivity extends AppCompatActivity {
         cancelWorkAlarm();
 
         if (isWorkMode) {
+            Intent alarmIntent = new Intent(this, PomodoroAlarmReceiver.class);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_TITLE, taskTitle);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_WORK_TIME, workTimeMinutes);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_BREAK_TIME, breakTimeMinutes);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_ID, staticTaskId);
+            sendBroadcast(alarmIntent);
+
             Toast.makeText(TimerActivity.this, "Focus session finished! Time for a break.", Toast.LENGTH_LONG).show();
             isWorkMode = false;
             chipTimerMode.setText(R.string.break_time);
