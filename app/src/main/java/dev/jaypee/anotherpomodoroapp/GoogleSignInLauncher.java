@@ -44,10 +44,6 @@ public class GoogleSignInLauncher {
         credentialManager = CredentialManager.create(this.contextWrapper);
     }
 
-    public void updateContext(Context context) {
-        contextWrapper.setBaseContext(context);
-    }
-
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener(
