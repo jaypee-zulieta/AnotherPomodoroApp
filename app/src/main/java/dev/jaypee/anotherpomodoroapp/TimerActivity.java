@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.content.res.ColorStateList;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +22,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
+import com.google.firebase.auth.FirebaseAuth;
 
 
 import java.util.Locale;
@@ -95,6 +97,28 @@ public class TimerActivity extends AppCompatActivity {
         tvBreakDuration = findViewById(R.id.tv_break_duration);
 
         ibBack.setOnClickListener(v -> finish());
+
+        MaterialButton ibEditTask = findViewById(R.id.ib_edit_task);
+        TextView tvEditLabel = findViewById(R.id.tv_edit_label);
+        View.OnClickListener editClickListener = v -> {
+            Intent editIntent = new Intent(TimerActivity.this, AddTaskActivity.class);
+            String userId = FirebaseAuth.getInstance().getCurrentUser() != null
+                    ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+            if (userId != null) {
+                editIntent.putExtra(AddTaskActivity.EXTRA_USER_ID, userId);
+            }
+            PomodoroTask taskToEdit = new PomodoroTask();
+            taskToEdit.setId(staticTaskId);
+            taskToEdit.setTitle(taskTitle);
+            taskToEdit.setWorkTime(workTimeMinutes);
+            taskToEdit.setBreakTime(breakTimeMinutes);
+            taskToEdit.setUserId(userId);
+            editIntent.putExtra(AddTaskActivity.EXTRA_TASK, taskToEdit);
+            startActivity(editIntent);
+        };
+        ibEditTask.setOnClickListener(editClickListener);
+        tvEditLabel.setOnClickListener(editClickListener);
+
         btnStartPause.setOnClickListener(v -> {
             if (isTimerRunning) {
                 pauseTimer();

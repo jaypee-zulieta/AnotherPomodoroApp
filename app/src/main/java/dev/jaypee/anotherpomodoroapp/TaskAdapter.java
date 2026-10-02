@@ -8,7 +8,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.chip.Chip;
 
@@ -47,7 +46,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     public void setTasks(List<PomodoroTask> tasks) {
         this.tasks = tasks;
-        // Remove selections for tasks that no longer exist
         Set<String> currentIds = new HashSet<>();
         for (PomodoroTask task : tasks) {
             currentIds.add(task.getId());
@@ -136,12 +134,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         holder.chipDuration.setText(task.getWorkTime() + " min / " + task.getBreakTime() + " min");
         holder.tvDescription.setText("Duration: " + task.getWorkTime() + " mins focus, " + task.getBreakTime() + " mins break");
 
-        // Checkbox state
         boolean isSelected = selectedTaskIds.contains(task.getId());
         holder.cbSelect.setChecked(isSelected);
         holder.cbSelect.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
 
-        // Item click behavior
         holder.itemView.setOnClickListener(v -> {
             if (selectionMode) {
                 toggleSelection(task.getId());
@@ -150,7 +146,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             }
         });
 
-        // Long press to enter selection mode
         holder.itemView.setOnLongClickListener(v -> {
             if (!selectionMode) {
                 enterSelectionMode(task.getId());
@@ -158,24 +153,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                 toggleSelection(task.getId());
             }
             return true;
-        });
-
-        holder.btnStartTimer.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onTaskStartTimer(task);
-            }
-        });
-
-        holder.btnEdit.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onTaskEdit(task);
-            }
-        });
-
-        holder.btnDelete.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onTaskDelete(task);
-            }
         });
     }
 
@@ -194,7 +171,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     static class TaskViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvDescription;
         Chip chipDuration;
-        MaterialButton btnStartTimer, btnEdit, btnDelete;
         MaterialCheckBox cbSelect;
 
         public TaskViewHolder(@NonNull View itemView) {
@@ -202,9 +178,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             tvTitle = itemView.findViewById(R.id.tv_task_title);
             chipDuration = itemView.findViewById(R.id.chip_task_duration);
             tvDescription = itemView.findViewById(R.id.tv_task_description);
-            btnStartTimer = itemView.findViewById(R.id.btn_start_timer);
-            btnEdit = itemView.findViewById(R.id.btn_edit_task);
-            btnDelete = itemView.findViewById(R.id.btn_delete_task);
             cbSelect = itemView.findViewById(R.id.cb_task_select);
         }
     }
