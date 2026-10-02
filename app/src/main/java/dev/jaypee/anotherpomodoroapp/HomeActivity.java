@@ -224,19 +224,6 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
         });
 
-        MaterialButton btnNavTimer = findViewById(R.id.btn_nav_timer);
-        if (btnNavTimer != null) {
-            btnNavTimer.setOnClickListener(v -> {
-                startActivity(new Intent(HomeActivity.this, TimerActivity.class));
-            });
-        }
 
-        MaterialButton btnNavTasks = findViewById(R.id.btn_nav_tasks);
-        if (btnNavTasks != null) {
-            btnNavTasks.setOnClickListener(v -> {
-                // Already on home, scroll to top
-                rvTasks.smoothScrollToPosition(0);
-            });
-        }
     }
 }
