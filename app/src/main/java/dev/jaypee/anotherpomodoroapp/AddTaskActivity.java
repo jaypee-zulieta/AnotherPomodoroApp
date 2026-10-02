@@ -91,7 +91,9 @@ public class AddTaskActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(v -> finish());
 
         ChatAdapter chatAdapter = new ChatAdapter(Markwon.create(this));
-        rvChat.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setStackFromEnd(true);
+        rvChat.setLayoutManager(layoutManager);
         rvChat.setAdapter(chatAdapter);
         chatAdapter.addMessage(new ChatMessage("What are you planning to do today?", false));
 

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_add_task"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/md_sys_color_background"
     tools:context=".AddTaskActivity">
 
@@ -28,151 +29,79 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.core.widget.NestedScrollView
+    <!-- Main content area -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:fillViewport="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp">
 
-        <LinearLayout
+        <!-- Edit Mode: Title Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_manual_title"
+            style="@style/Widget.App.TextInputLayout.Outlined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/task_description"
+            android:visibility="gone"
+            app:boxStrokeWidth="1.5dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:endIconMode="clear_text">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_manual_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences|textMultiLine"
+                android:textColor="?attr/colorOnSurface"
+                android:minHeight="56dp"
+                android:fontFamily="sans-serif" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- AI Chat Container -->
+        <LinearLayout
+            android:id="@+id/ll_chat_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:paddingHorizontal="20dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="100dp">
+            android:visibility="visible">
 
-            <!-- Edit Mode: Title Input -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_manual_title"
-                style="@style/Widget.App.TextInputLayout.Outlined"
+            <!-- Chat RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_chat"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingBottom="8dp"
+                android:nestedScrollingEnabled="false" />
+
+            <!-- AI Loading -->
+            <ProgressBar
+                android:id="@+id/pb_ai_loading"
+                style="@style/Widget.App.ProgressBar.Circular"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginVertical="8dp"
+                android:visibility="gone" />
+
+            <!-- AI Error -->
+            <TextView
+                android:id="@+id/tv_ai_error"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="@string/task_description"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginVertical="8dp"
+                android:textColor="@color/md_sys_color_error"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif"
+                android:gravity="center"
                 android:visibility="gone"
-                app:boxStrokeWidth="1.5dp"
-                app:boxStrokeWidthFocused="2dp"
-                app:endIconMode="clear_text">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_manual_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textCapSentences|textMultiLine"
-                    android:textColor="?attr/colorOnSurface"
-                    android:minHeight="56dp"
-                    android:fontFamily="sans-serif" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- AI Chat Container -->
-            <LinearLayout
-                android:id="@+id/ll_chat_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="visible">
-
-                <!-- Chat RecyclerView -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_chat"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:clipToPadding="false"
-                    android:paddingBottom="8dp"
-                    android:nestedScrollingEnabled="false" />
-
-                <!-- AI Loading -->
-                <ProgressBar
-                    android:id="@+id/pb_ai_loading"
-                    style="@style/Widget.App.ProgressBar.Circular"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginVertical="8dp"
-                    android:visibility="gone" />
-
-                <!-- AI Error -->
-                <TextView
-                    android:id="@+id/tv_ai_error"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginVertical="8dp"
-                    android:textColor="@color/md_sys_color_error"
-                    android:textSize="13sp"
-                    android:fontFamily="sans-serif"
-                    android:gravity="center"
-                    android:visibility="gone"
-                    tools:text="Error message goes here" />
-
-                <!-- Chat Input -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    app:cardCornerRadius="28dp"
-                    app:cardElevation="2dp"
-                    app:cardBackgroundColor="?attr/colorSurface"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="16dp">
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_marginEnd="12dp"
-                            android:contentDescription="@string/gemini_sparkle"
-                            android:src="@drawable/ic_sparkle"
-                            android:tint="?attr/colorPrimary" />
-
-                        <EditText
-                            android:id="@+id/et_chat_input"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:background="@android:color/transparent"
-                            android:gravity="center_vertical"
-                            android:hint="@string/type_a_message"
-                            android:inputType="textCapSentences|textMultiLine"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textColorHint="?attr/colorOnSurfaceVariant"
-                            android:textSize="15sp"
-                            android:fontFamily="sans-serif"
-                            android:maxLines="3"
-                            tools:ignore="Autofill" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_send"
-                            style="@style/Widget.Material3.Button"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_marginStart="8dp"
-                            android:insetTop="0dp"
-                            android:insetBottom="0dp"
-                            android:padding="0dp"
-                            android:minWidth="0dp"
-                            android:minHeight="0dp"
-                            android:contentDescription="@string/send"
-                            app:icon="@drawable/ic_send"
-                            app:iconSize="18dp"
-                            app:iconGravity="textStart"
-                            app:iconPadding="0dp"
-                            app:iconTint="?attr/colorOnPrimary"
-                            app:backgroundTint="?attr/colorPrimary"
-                            app:cornerRadius="20dp" />
-
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
+                tools:text="Error message goes here" />
 
             <!-- Duration Container -->
             <LinearLayout
@@ -226,13 +155,79 @@
             </LinearLayout>
 
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+
+        <!-- Chat Input - pinned to bottom -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="?attr/colorSurface"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorOutlineVariant">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="12dp"
+                    android:contentDescription="@string/gemini_sparkle"
+                    android:src="@drawable/ic_sparkle"
+                    android:tint="?attr/colorPrimary" />
+
+                <EditText
+                    android:id="@+id/et_chat_input"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:gravity="center_vertical"
+                    android:hint="@string/type_a_message"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textColorHint="?attr/colorOnSurfaceVariant"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif"
+                    android:maxLines="3"
+                    tools:ignore="Autofill" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_send"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:padding="0dp"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:contentDescription="@string/send"
+                    app:icon="@drawable/ic_send"
+                    app:iconSize="18dp"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconTint="?attr/colorOnPrimary"
+                    app:backgroundTint="?attr/colorPrimary"
+                    app:cornerRadius="20dp" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
 
     <!-- Bottom Action Bar -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
         app:cardCornerRadius="0dp"
         app:cardElevation="8dp"
         app:cardBackgroundColor="?attr/colorSurface"
@@ -283,4 +278,4 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>
