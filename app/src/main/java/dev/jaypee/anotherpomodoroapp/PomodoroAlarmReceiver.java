@@ -34,7 +34,6 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
                 }
                 return;
             } else if (ACTION_START_BREAK.equals(action)) {
-                // Dismisses the notification and opens TimerActivity in break mode
                 NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 if (notificationManager != null) {
                     notificationManager.cancel(NOTIFICATION_ID);
@@ -43,15 +42,13 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
                 int workTime = intent.getIntExtra(EXTRA_WORK_TIME, 25);
                 int breakTime = intent.getIntExtra(EXTRA_BREAK_TIME, 5);
                 String taskId = intent.getStringExtra(EXTRA_TASK_ID);
+                boolean wasWorkMode = intent.getBooleanExtra(EXTRA_IS_WORK_MODE, true);
 
-                Intent activityIntent = new Intent(context, TimerActivity.class);
-                activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                activityIntent.putExtra(TimerActivity.EXTRA_TASK_TITLE, taskTitle != null ? taskTitle : "Pomodoro Session");
-                activityIntent.putExtra(TimerActivity.EXTRA_WORK_TIME, workTime);
-                activityIntent.putExtra(TimerActivity.EXTRA_BREAK_TIME, breakTime);
-                activityIntent.putExtra(TimerActivity.EXTRA_TASK_ID, taskId);
-                activityIntent.putExtra(TimerActivity.EXTRA_OPEN_BREAK, true);
-                context.startActivity(activityIntent);
+                boolean nextWorkMode = !wasWorkMode;
+                TimerActivity.startTimerFromBackground(context, taskTitle, workTime, breakTime, taskId, nextWorkMode);
+
+                String toastText = nextWorkMode ? "Focus session started!" : "Break started!";
+                android.widget.Toast.makeText(context, toastText, android.widget.Toast.LENGTH_SHORT).show();
                 return;
             }
         }
