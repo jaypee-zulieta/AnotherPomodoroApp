@@ -37,6 +37,7 @@ public class TimerActivity extends AppCompatActivity {
     public static final String EXTRA_LONG_BREAK_INTERVAL = "extra_long_break_interval";
     public static final String EXTRA_TASK_ID = "extra_task_id";
     public static final String EXTRA_OPEN_BREAK = "extra_open_break";
+    public static final String EXTRA_COMPLETED_POMODOROS = "extra_completed_pomodoros";
     public static final String ACTION_TIMER_UPDATED = "dev.jaypee.anotherpomodoroapp.action.TIMER_UPDATED";
 
     public static final int MODE_FOCUS = 0;
@@ -176,6 +177,9 @@ public class TimerActivity extends AppCompatActivity {
             longBreakInterval = intent.getIntExtra(EXTRA_LONG_BREAK_INTERVAL, 4);
             String incomingTaskId = intent.getStringExtra(EXTRA_TASK_ID);
             boolean openBreak = intent.getBooleanExtra(EXTRA_OPEN_BREAK, false);
+            // Read completedPomodoros from intent (passed from alarm receiver) to avoid double-increment or reset
+            int intentCompletedPomodoros = intent.getIntExtra(EXTRA_COMPLETED_POMODOROS, -1);
+            boolean hasCompletedPomodorosInIntent = intentCompletedPomodoros >= 0;
 
             boolean isSameTask = staticTimerRunning && incomingTaskId != null && incomingTaskId.equals(staticTaskId);
 
@@ -196,7 +200,15 @@ public class TimerActivity extends AppCompatActivity {
                     transitionToNextPhaseAuto();
                 }
             } else if (openBreak) {
-                completedPomodoros++;
+                // Focus session ended, transitioning to break.
+                // Use completedPomodoros from intent (already incremented by handleTimerFinished before scheduling alarm)
+                // DO NOT increment again here - that was the bug causing double-count.
+                if (hasCompletedPomodorosInIntent) {
+                    completedPomodoros = intentCompletedPomodoros;
+                } else {
+                    // Fallback: increment if not provided (should not happen with fixed alarm receiver)
+                    completedPomodoros++;
+                }
                 boolean isLongBreak = (completedPomodoros > 0) && (completedPomodoros % longBreakInterval == 0);
                 timerMode = isLongBreak ? MODE_LONG_BREAK : MODE_SHORT_BREAK;
                 timeLeftInMillis = (isLongBreak ? longBreakTimeMinutes : breakTimeMinutes) * 60 * 1000L;
@@ -211,19 +223,27 @@ public class TimerActivity extends AppCompatActivity {
                 staticCompletedPomodoros = completedPomodoros;
                 staticTaskId = incomingTaskId != null ? incomingTaskId : "";
             } else {
-                // New task or start fresh
+                // Break ended, transitioning to focus (openBreak == false).
+                // Use completedPomodoros from intent (should be the same count from completed focus sessions).
+                // DO NOT reset to 0 - that was the bug losing the interval count.
+                if (hasCompletedPomodorosInIntent) {
+                    completedPomodoros = intentCompletedPomodoros;
+                } else {
+                    // Fallback: if no count provided, assume 0 (new task)
+                    completedPomodoros = 0;
+                }
+                timerMode = MODE_FOCUS;
+                timeLeftInMillis = workTimeMinutes * 60 * 1000L;
+                isTimerRunning = false;
+                staticTimerRunning = false;
+                staticTimerMode = timerMode;
                 staticTaskTitle = taskTitle;
                 staticWorkTimeMinutes = workTimeMinutes;
                 staticBreakTimeMinutes = breakTimeMinutes;
                 staticLongBreakTimeMinutes = longBreakTimeMinutes;
                 staticLongBreakInterval = longBreakInterval;
-                staticCompletedPomodoros = 0;
+                staticCompletedPomodoros = completedPomodoros;
                 staticTaskId = incomingTaskId != null ? incomingTaskId : "";
-                staticTimerRunning = false;
-                staticTimerMode = MODE_FOCUS;
-                timerMode = MODE_FOCUS;
-                completedPomodoros = 0;
-                timeLeftInMillis = workTimeMinutes * 60 * 1000L;
             }
         } else if (staticTimerRunning) {
             taskTitle = staticTaskTitle;

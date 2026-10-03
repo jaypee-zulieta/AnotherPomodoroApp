@@ -88,7 +88,11 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
         String actionText;
         boolean openBreak;
 
+        // When a focus session completes in background, the alarm was scheduled with the
+        // completedPomodoros count BEFORE the session started. We must increment it now.
+        // When a break completes, the count was already incremented when the focus session ended.
         if (timerMode == TimerActivity.MODE_FOCUS) {
+            completedPomodoros++; // Increment for the focus session that just completed
             boolean isLongBreakNext = (completedPomodoros > 0) && (completedPomodoros % longBreakInterval == 0);
             notificationTitle = "Work Timer Finished!";
             notificationText = isLongBreakNext
@@ -113,6 +117,8 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
         contentIntent.putExtra(TimerActivity.EXTRA_LONG_BREAK_INTERVAL, longBreakInterval);
         contentIntent.putExtra(TimerActivity.EXTRA_TASK_ID, taskId);
         contentIntent.putExtra(TimerActivity.EXTRA_OPEN_BREAK, openBreak);
+        // Pass completedPomodoros so TimerActivity can restore correct interval count
+        contentIntent.putExtra(TimerActivity.EXTRA_COMPLETED_POMODOROS, completedPomodoros);
         PendingIntent contentPendingIntent = PendingIntent.getActivity(
                 context,
                 0,
