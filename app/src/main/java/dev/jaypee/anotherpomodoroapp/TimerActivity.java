@@ -38,6 +38,7 @@ public class TimerActivity extends AppCompatActivity {
     public static final String EXTRA_TASK_ID = "extra_task_id";
     public static final String EXTRA_OPEN_BREAK = "extra_open_break";
     public static final String EXTRA_COMPLETED_POMODOROS = "extra_completed_pomodoros";
+    public static final String EXTRA_FROM_FOREGROUND = "extra_from_foreground";
     public static final String ACTION_TIMER_UPDATED = "dev.jaypee.anotherpomodoroapp.action.TIMER_UPDATED";
 
     public static final int MODE_FOCUS = 0;
@@ -399,6 +400,7 @@ public class TimerActivity extends AppCompatActivity {
             alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_COMPLETED_POMODOROS, completedPomodoros);
             alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_ID, staticTaskId);
             alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_TIMER_MODE, MODE_FOCUS);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_FROM_FOREGROUND, true);
             sendBroadcast(alarmIntent);
 
             if (isLongBreak) {
@@ -418,6 +420,7 @@ public class TimerActivity extends AppCompatActivity {
             alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_COMPLETED_POMODOROS, completedPomodoros);
             alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_ID, staticTaskId);
             alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_TIMER_MODE, timerMode);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_FROM_FOREGROUND, true);
             sendBroadcast(alarmIntent);
 
             Toast.makeText(TimerActivity.this, "Break finished! Back to focus.", Toast.LENGTH_LONG).show();
