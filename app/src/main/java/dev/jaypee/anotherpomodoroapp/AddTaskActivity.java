@@ -105,6 +105,7 @@ public class AddTaskActivity extends AppCompatActivity {
         boolean isEditing = (taskToEdit != null);
 
         if (isEditing) {
+            toolbar.setTitle(R.string.edit_task);
             btnSaveTask.setText(R.string.save_changes);
             btnDelete.setVisibility(View.VISIBLE);
             btnDismissAi.setVisibility(View.GONE);
@@ -112,12 +113,14 @@ public class AddTaskActivity extends AppCompatActivity {
 
             tilManualTitle.setVisibility(View.VISIBLE);
             chatContainer.setVisibility(View.GONE);
+            cardChatInput.setVisibility(View.GONE);
             durationContainer.setVisibility(View.VISIBLE);
 
             etManualTitle.setText(taskToEdit.getTitle());
             etWork.setText(String.valueOf(taskToEdit.getWorkTime()));
             etBreak.setText(String.valueOf(taskToEdit.getBreakTime()));
         } else {
+            toolbar.setTitle(R.string.add_new_task);
             btnSaveTask.setText(R.string.add_task);
             btnDelete.setVisibility(View.GONE);
             btnDismissAi.setVisibility(View.VISIBLE);
@@ -125,6 +128,7 @@ public class AddTaskActivity extends AppCompatActivity {
 
             tilManualTitle.setVisibility(View.GONE);
             chatContainer.setVisibility(View.VISIBLE);
+            cardChatInput.setVisibility(View.VISIBLE);
             durationContainer.setVisibility(View.GONE);
         }
 
@@ -280,7 +284,7 @@ public class AddTaskActivity extends AppCompatActivity {
 
         btnDelete.setOnClickListener(v -> {
             if (taskToEdit != null && taskToEdit.getId() != null) {
-                new AlertDialog.Builder(this)
+                AlertDialog taskDeleted = new AlertDialog.Builder(this)
                         .setTitle(R.string.confirm_delete_title)
                         .setMessage(R.string.confirm_delete_message)
                         .setPositiveButton(R.string.delete_task, (dialog, which) -> {

@@ -32,7 +32,6 @@ public class HomeActivity extends AppCompatActivity {
 
     private FirebaseAuth firebaseAuth;
     private FirestoreService firestoreService;
-    private GeminiRecommendationService geminiService;
     private TaskAdapter taskAdapter;
     private ListenerRegistration tasksListener;
     private RecyclerView rvTasks;
@@ -65,7 +64,6 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         firestoreService = new FirestoreService();
-        geminiService = new GeminiRecommendationService();
 
         rvTasks = findViewById(R.id.rv_tasks);
         cvEmptyState = findViewById(R.id.cv_empty_state);
