@@ -11,6 +11,8 @@ public class PomodoroTask implements Serializable {
     private String title;
     private int workTime;
     private int breakTime;
+    private int longBreakTime = 15;
+    private int longBreakInterval = 4;
     private long timestamp;
 
     public PomodoroTask() {
@@ -18,11 +20,17 @@ public class PomodoroTask implements Serializable {
     }
 
     public PomodoroTask(String id, String userId, String title, int workTime, int breakTime, long timestamp) {
+        this(id, userId, title, workTime, breakTime, 15, 4, timestamp);
+    }
+
+    public PomodoroTask(String id, String userId, String title, int workTime, int breakTime, int longBreakTime, int longBreakInterval, long timestamp) {
         this.id = id;
         this.userId = userId;
         this.title = title;
         this.workTime = workTime;
         this.breakTime = breakTime;
+        this.longBreakTime = longBreakTime > 0 ? longBreakTime : 15;
+        this.longBreakInterval = longBreakInterval > 0 ? longBreakInterval : 4;
         this.timestamp = timestamp;
     }
 
@@ -64,6 +72,22 @@ public class PomodoroTask implements Serializable {
 
     public void setBreakTime(int breakTime) {
         this.breakTime = breakTime;
+    }
+
+    public int getLongBreakTime() {
+        return longBreakTime > 0 ? longBreakTime : 15;
+    }
+
+    public void setLongBreakTime(int longBreakTime) {
+        this.longBreakTime = longBreakTime;
+    }
+
+    public int getLongBreakInterval() {
+        return longBreakInterval > 0 ? longBreakInterval : 4;
+    }
+
+    public void setLongBreakInterval(int longBreakInterval) {
+        this.longBreakInterval = longBreakInterval;
     }
 
     public long getTimestamp() {

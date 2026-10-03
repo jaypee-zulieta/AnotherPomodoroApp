@@ -15,11 +15,16 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
 
     public static final String ACTION_DISMISS = "dev.jaypee.anotherpomodoroapp.action.DISMISS_ALARM";
     public static final String ACTION_START_BREAK = "dev.jaypee.anotherpomodoroapp.action.START_BREAK";
+
     public static final String EXTRA_TASK_TITLE = "extra_task_title";
     public static final String EXTRA_WORK_TIME = "extra_work_time";
     public static final String EXTRA_BREAK_TIME = "extra_break_time";
+    public static final String EXTRA_LONG_BREAK_TIME = "extra_long_break_time";
+    public static final String EXTRA_LONG_BREAK_INTERVAL = "extra_long_break_interval";
+    public static final String EXTRA_COMPLETED_POMODOROS = "extra_completed_pomodoros";
     public static final String EXTRA_TASK_ID = "extra_task_id";
-    public static final String EXTRA_IS_WORK_MODE = "extra_is_work_mode";
+    public static final String EXTRA_TIMER_MODE = "extra_timer_mode";
+
     private static final String CHANNEL_ID = "pomodoro_alarm_channel";
     private static final int NOTIFICATION_ID = 2001;
 
@@ -41,13 +46,24 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
                 String taskTitle = intent.getStringExtra(EXTRA_TASK_TITLE);
                 int workTime = intent.getIntExtra(EXTRA_WORK_TIME, 25);
                 int breakTime = intent.getIntExtra(EXTRA_BREAK_TIME, 5);
+                int longBreakTime = intent.getIntExtra(EXTRA_LONG_BREAK_TIME, 15);
+                int longBreakInterval = intent.getIntExtra(EXTRA_LONG_BREAK_INTERVAL, 4);
+                int completedPomodoros = intent.getIntExtra(EXTRA_COMPLETED_POMODOROS, 0);
                 String taskId = intent.getStringExtra(EXTRA_TASK_ID);
-                boolean wasWorkMode = intent.getBooleanExtra(EXTRA_IS_WORK_MODE, true);
+                int prevTimerMode = intent.getIntExtra(EXTRA_TIMER_MODE, TimerActivity.MODE_FOCUS);
 
-                boolean nextWorkMode = !wasWorkMode;
-                TimerActivity.startTimerFromBackground(context, taskTitle, workTime, breakTime, taskId, nextWorkMode);
+                int nextTimerMode;
+                if (prevTimerMode == TimerActivity.MODE_FOCUS) {
+                    boolean isLongBreak = (completedPomodoros > 0) && (completedPomodoros % longBreakInterval == 0);
+                    nextTimerMode = isLongBreak ? TimerActivity.MODE_LONG_BREAK : TimerActivity.MODE_SHORT_BREAK;
+                } else {
+                    nextTimerMode = TimerActivity.MODE_FOCUS;
+                }
 
-                String toastText = nextWorkMode ? "Focus session started!" : "Break started!";
+                TimerActivity.startTimerFromBackground(context, taskTitle, workTime, breakTime, longBreakTime, longBreakInterval, completedPomodoros, taskId, nextTimerMode);
+
+                String toastText = (nextTimerMode == TimerActivity.MODE_FOCUS) ? "Focus session started!"
+                        : (nextTimerMode == TimerActivity.MODE_LONG_BREAK ? "Long Break started!" : "Short Break started!");
                 android.widget.Toast.makeText(context, toastText, android.widget.Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -59,8 +75,11 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
         }
         int workTime = intent != null ? intent.getIntExtra(EXTRA_WORK_TIME, 25) : 25;
         int breakTime = intent != null ? intent.getIntExtra(EXTRA_BREAK_TIME, 5) : 5;
+        int longBreakTime = intent != null ? intent.getIntExtra(EXTRA_LONG_BREAK_TIME, 15) : 15;
+        int longBreakInterval = intent != null ? intent.getIntExtra(EXTRA_LONG_BREAK_INTERVAL, 4) : 4;
+        int completedPomodoros = intent != null ? intent.getIntExtra(EXTRA_COMPLETED_POMODOROS, 0) : 0;
         String taskId = intent != null ? intent.getStringExtra(EXTRA_TASK_ID) : "";
-        boolean isWorkMode = intent != null ? intent.getBooleanExtra(EXTRA_IS_WORK_MODE, true) : true;
+        int timerMode = intent != null ? intent.getIntExtra(EXTRA_TIMER_MODE, TimerActivity.MODE_FOCUS) : TimerActivity.MODE_FOCUS;
 
         createNotificationChannel(context);
 
@@ -69,10 +88,13 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
         String actionText;
         boolean openBreak;
 
-        if (isWorkMode) {
+        if (timerMode == TimerActivity.MODE_FOCUS) {
+            boolean isLongBreakNext = (completedPomodoros > 0) && (completedPomodoros % longBreakInterval == 0);
             notificationTitle = "Work Timer Finished!";
-            notificationText = "Focus session ended for: " + taskTitle;
-            actionText = "Start Break";
+            notificationText = isLongBreakNext
+                    ? "Focus session ended! Time for a Long Break: " + taskTitle
+                    : "Focus session ended for: " + taskTitle;
+            actionText = isLongBreakNext ? "Start Long Break" : "Start Break";
             openBreak = true;
         } else {
             notificationTitle = "Break Finished!";
@@ -87,6 +109,8 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
         contentIntent.putExtra(TimerActivity.EXTRA_TASK_TITLE, taskTitle);
         contentIntent.putExtra(TimerActivity.EXTRA_WORK_TIME, workTime);
         contentIntent.putExtra(TimerActivity.EXTRA_BREAK_TIME, breakTime);
+        contentIntent.putExtra(TimerActivity.EXTRA_LONG_BREAK_TIME, longBreakTime);
+        contentIntent.putExtra(TimerActivity.EXTRA_LONG_BREAK_INTERVAL, longBreakInterval);
         contentIntent.putExtra(TimerActivity.EXTRA_TASK_ID, taskId);
         contentIntent.putExtra(TimerActivity.EXTRA_OPEN_BREAK, openBreak);
         PendingIntent contentPendingIntent = PendingIntent.getActivity(
@@ -112,8 +136,11 @@ public class PomodoroAlarmReceiver extends BroadcastReceiver {
         startBreakIntent.putExtra(EXTRA_TASK_TITLE, taskTitle);
         startBreakIntent.putExtra(EXTRA_WORK_TIME, workTime);
         startBreakIntent.putExtra(EXTRA_BREAK_TIME, breakTime);
+        startBreakIntent.putExtra(EXTRA_LONG_BREAK_TIME, longBreakTime);
+        startBreakIntent.putExtra(EXTRA_LONG_BREAK_INTERVAL, longBreakInterval);
+        startBreakIntent.putExtra(EXTRA_COMPLETED_POMODOROS, completedPomodoros);
         startBreakIntent.putExtra(EXTRA_TASK_ID, taskId);
-        startBreakIntent.putExtra(EXTRA_IS_WORK_MODE, isWorkMode);
+        startBreakIntent.putExtra(EXTRA_TIMER_MODE, timerMode);
         PendingIntent startBreakPendingIntent = PendingIntent.getBroadcast(
                 context,
                 2,

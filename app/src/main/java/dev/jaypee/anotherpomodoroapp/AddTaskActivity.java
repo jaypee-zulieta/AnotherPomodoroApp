@@ -84,6 +84,8 @@ public class AddTaskActivity extends AppCompatActivity {
         View durationContainer = findViewById(R.id.ll_duration_container);
         EditText etWork = findViewById(R.id.et_work_time);
         EditText etBreak = findViewById(R.id.et_break_time);
+        EditText etLongBreak = findViewById(R.id.et_long_break_time);
+        EditText etInterval = findViewById(R.id.et_long_break_interval);
 
         Button btnDelete = findViewById(R.id.btn_delete_task);
         Button btnCancel = findViewById(R.id.btn_cancel);
@@ -119,6 +121,8 @@ public class AddTaskActivity extends AppCompatActivity {
             etManualTitle.setText(taskToEdit.getTitle());
             etWork.setText(String.valueOf(taskToEdit.getWorkTime()));
             etBreak.setText(String.valueOf(taskToEdit.getBreakTime()));
+            etLongBreak.setText(String.valueOf(taskToEdit.getLongBreakTime()));
+            etInterval.setText(String.valueOf(taskToEdit.getLongBreakInterval()));
         } else {
             toolbar.setTitle(R.string.add_new_task);
             btnSaveTask.setText(R.string.add_task);
@@ -193,7 +197,7 @@ public class AddTaskActivity extends AppCompatActivity {
 
             geminiService.getChatResponse(chatAdapter.getMessages(), new GeminiRecommendationService.RecommendationCallback() {
                 @Override
-                public void onSuccess(String aiResponse, int workTime, int breakTime) {
+                public void onSuccess(String aiResponse, int workTime, int breakTime, int longBreakTime, int longBreakInterval) {
                     pbAi.setVisibility(View.GONE);
                     btnSend.setEnabled(true);
                     chatAdapter.addMessage(new ChatMessage(aiResponse, false));
@@ -204,6 +208,12 @@ public class AddTaskActivity extends AppCompatActivity {
                     }
                     if (breakTime != -1) {
                         etBreak.setText(String.valueOf(breakTime));
+                    }
+                    if (longBreakTime != -1) {
+                        etLongBreak.setText(String.valueOf(longBreakTime));
+                    }
+                    if (longBreakInterval != -1) {
+                        etInterval.setText(String.valueOf(longBreakInterval));
                     }
 
                     if (durationContainer.getVisibility() != View.VISIBLE) {
@@ -252,14 +262,20 @@ public class AddTaskActivity extends AppCompatActivity {
 
             String workStr = etWork.getText().toString().trim();
             String breakStr = etBreak.getText().toString().trim();
+            String longBreakStr = etLongBreak.getText().toString().trim();
+            String intervalStr = etInterval.getText().toString().trim();
 
             int workTime = workStr.isEmpty() ? 25 : Integer.parseInt(workStr);
             int breakTime = breakStr.isEmpty() ? 5 : Integer.parseInt(breakStr);
+            int longBreakTime = longBreakStr.isEmpty() ? 15 : Integer.parseInt(longBreakStr);
+            int longBreakInterval = intervalStr.isEmpty() ? 4 : Integer.parseInt(intervalStr);
 
             if (isEditing) {
                 taskToEdit.setTitle(title);
                 taskToEdit.setWorkTime(workTime);
                 taskToEdit.setBreakTime(breakTime);
+                taskToEdit.setLongBreakTime(longBreakTime);
+                taskToEdit.setLongBreakInterval(longBreakInterval);
 
                 firestoreService.saveTask(taskToEdit, aVoid -> {
                     Toast.makeText(this, "Task updated", Toast.LENGTH_SHORT).show();
@@ -272,6 +288,8 @@ public class AddTaskActivity extends AppCompatActivity {
                         title,
                         workTime,
                         breakTime,
+                        longBreakTime,
+                        longBreakInterval,
                         System.currentTimeMillis()
                 );
 

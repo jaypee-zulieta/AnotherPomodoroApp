@@ -97,6 +97,8 @@ public class HomeActivity extends AppCompatActivity {
                 intent.putExtra(TimerActivity.EXTRA_TASK_TITLE, task.getTitle());
                 intent.putExtra(TimerActivity.EXTRA_WORK_TIME, task.getWorkTime());
                 intent.putExtra(TimerActivity.EXTRA_BREAK_TIME, task.getBreakTime());
+                intent.putExtra(TimerActivity.EXTRA_LONG_BREAK_TIME, task.getLongBreakTime());
+                intent.putExtra(TimerActivity.EXTRA_LONG_BREAK_INTERVAL, task.getLongBreakInterval());
                 intent.putExtra(TimerActivity.EXTRA_TASK_ID, task.getId());
                 startActivity(intent);
             }

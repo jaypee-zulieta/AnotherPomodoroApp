@@ -26,7 +26,9 @@
     <string name="task_description">Task Description</string>
     <string name="ai_prompt_hint">Describe your task for AI recommendations</string>
     <string name="work_min">Work (min)</string>
-    <string name="break_min">Break (min)</string>
+    <string name="break_min">Short Break (min)</string>
+    <string name="long_break_min">Long Break (min)</string>
+    <string name="long_break_interval">Interval (sessions)</string>
     <string name="cancel">Cancel</string>
     <string name="add_task">Add Task</string>
     <string name="send">Send</string>
@@ -43,6 +45,7 @@
     <string name="timer_title">Pomodoro Timer</string>
     <string name="focus_time">Focus Time</string>
     <string name="break_time">Break Time</string>
+    <string name="long_break_time">Long Break Time</string>
     <string name="pomodoro_session">Pomodoro Session</string>
     <string name="start">Start</string>
     <string name="pause">Pause</string>
@@ -57,7 +60,10 @@
     <string name="break_complete">Break over. Ready to focus?</string>
     <string name="task_completed">Task completed</string>
     <string name="work_duration">Work Duration</string>
-    <string name="break_duration">Break Duration</string>
+    <string name="break_duration">Short Break</string>
+    <string name="long_break_duration">Long Break</string>
+    <string name="start_long_break">Start Long Break</string>
+    <string name="session_cycle">Session %1$d of %2$d</string>
     <string name="minutes_short">min</string>
     <string name="seconds_short">sec</string>
     <string name="skip_break">Skip Break</string>

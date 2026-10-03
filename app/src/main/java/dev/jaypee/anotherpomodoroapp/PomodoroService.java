@@ -33,6 +33,9 @@ public class PomodoroService extends Service {
     public static final String EXTRA_TASK_TITLE = "extra_task_title";
     public static final String EXTRA_WORK_TIME = "extra_work_time";
     public static final String EXTRA_BREAK_TIME = "extra_break_time";
+    public static final String EXTRA_LONG_BREAK_TIME = "extra_long_break_time";
+    public static final String EXTRA_LONG_BREAK_INTERVAL = "extra_long_break_interval";
+    public static final String EXTRA_TIMER_MODE = "extra_timer_mode";
 
     public static final String BROADCAST_UPDATE = "dev.jaypee.anotherpomodoroapp.broadcast.UPDATE";
     public static final String EXTRA_TIME_LEFT = "extra_time_left";
@@ -42,7 +45,7 @@ public class PomodoroService extends Service {
 
     // Static state for instant UI access across activities
     public static boolean staticIsRunning = false;
-    public static boolean staticIsWorkMode = true;
+    public static int staticTimerMode = TimerActivity.MODE_FOCUS;
     public static long staticTimeLeftInMillis = 25 * 60 * 1000L;
     public static String staticTaskTitle = "Pomodoro Session";
 
@@ -50,7 +53,10 @@ public class PomodoroService extends Service {
     private long timeLeftInMillis = 25 * 60 * 1000L;
     private long workTimeMillis = 25 * 60 * 1000L;
     private long breakTimeMillis = 5 * 60 * 1000L;
-    private boolean isWorkMode = true;
+    private long longBreakTimeMillis = 15 * 60 * 1000L;
+    private int longBreakInterval = 4;
+    private int completedPomodoros = 0;
+    private int timerMode = TimerActivity.MODE_FOCUS;
     private boolean isRunning = false;
     private String taskTitle = "Pomodoro Session";
 
@@ -71,10 +77,14 @@ public class PomodoroService extends Service {
                     }
                     int workMins = intent.getIntExtra(EXTRA_WORK_TIME, 25);
                     int breakMins = intent.getIntExtra(EXTRA_BREAK_TIME, 5);
+                    int longBreakMins = intent.getIntExtra(EXTRA_LONG_BREAK_TIME, 15);
+                    longBreakInterval = intent.getIntExtra(EXTRA_LONG_BREAK_INTERVAL, 4);
+
                     workTimeMillis = workMins * 60 * 1000L;
                     breakTimeMillis = breakMins * 60 * 1000L;
+                    longBreakTimeMillis = longBreakMins * 60 * 1000L;
                     timeLeftInMillis = workTimeMillis;
-                    isWorkMode = true;
+                    timerMode = TimerActivity.MODE_FOCUS;
                     startTimer();
                     break;
                 case ACTION_PAUSE:
@@ -128,7 +138,15 @@ public class PomodoroService extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
 
-        String title = (isWorkMode ? "Focus: " : "Break: ") + taskTitle;
+        String titlePrefix;
+        if (timerMode == TimerActivity.MODE_FOCUS) {
+            titlePrefix = "Focus: ";
+        } else if (timerMode == TimerActivity.MODE_SHORT_BREAK) {
+            titlePrefix = "Short Break: ";
+        } else {
+            titlePrefix = "Long Break: ";
+        }
+        String title = titlePrefix + taskTitle;
 
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(title)
@@ -146,7 +164,7 @@ public class PomodoroService extends Service {
         }
         isRunning = true;
         staticIsRunning = true;
-        staticIsWorkMode = isWorkMode;
+        staticTimerMode = timerMode;
         staticTaskTitle = taskTitle;
         staticTimeLeftInMillis = timeLeftInMillis;
 
@@ -216,8 +234,9 @@ public class PomodoroService extends Service {
         }
         isRunning = false;
         staticIsRunning = false;
-        isWorkMode = true;
-        staticIsWorkMode = true;
+        timerMode = TimerActivity.MODE_FOCUS;
+        staticTimerMode = timerMode;
+        completedPomodoros = 0;
         timeLeftInMillis = workTimeMillis;
         staticTimeLeftInMillis = timeLeftInMillis;
         updateNotification(formatTime(timeLeftInMillis));
@@ -227,19 +246,21 @@ public class PomodoroService extends Service {
     private void handleTimerFinished() {
         playAlarmAndVibrate();
 
-        if (isWorkMode) {
-            isWorkMode = false;
-            timeLeftInMillis = breakTimeMillis;
-            staticIsWorkMode = isWorkMode;
+        if (timerMode == TimerActivity.MODE_FOCUS) {
+            completedPomodoros++;
+            boolean isLongBreak = (completedPomodoros > 0) && (completedPomodoros % longBreakInterval == 0);
+            timerMode = isLongBreak ? TimerActivity.MODE_LONG_BREAK : TimerActivity.MODE_SHORT_BREAK;
+            timeLeftInMillis = isLongBreak ? longBreakTimeMillis : breakTimeMillis;
+            staticTimerMode = timerMode;
             staticTimeLeftInMillis = timeLeftInMillis;
             isRunning = false;
             staticIsRunning = false;
             updateNotification(formatTime(timeLeftInMillis) + " (Paused)");
             broadcastUpdate();
         } else {
-            isWorkMode = true;
+            timerMode = TimerActivity.MODE_FOCUS;
             timeLeftInMillis = workTimeMillis;
-            staticIsWorkMode = isWorkMode;
+            staticTimerMode = timerMode;
             staticTimeLeftInMillis = timeLeftInMillis;
             startTimer();
         }
@@ -264,7 +285,8 @@ public class PomodoroService extends Service {
     private void broadcastUpdate() {
         Intent intent = new Intent(BROADCAST_UPDATE);
         intent.putExtra(EXTRA_TIME_LEFT, timeLeftInMillis);
-        intent.putExtra(EXTRA_IS_WORK_MODE, isWorkMode);
+        intent.putExtra(EXTRA_IS_WORK_MODE, timerMode == TimerActivity.MODE_FOCUS);
+        intent.putExtra(EXTRA_TIMER_MODE, timerMode);
         intent.putExtra(EXTRA_IS_RUNNING, isRunning);
         intent.putExtra(EXTRA_TASK_NAME, taskTitle);
         sendBroadcast(intent);

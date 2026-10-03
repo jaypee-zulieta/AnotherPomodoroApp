@@ -131,8 +131,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         PomodoroTask task = tasks.get(position);
         holder.tvTitle.setText(toSentenceCase(task.getTitle()));
-        holder.chipDuration.setText(task.getWorkTime() + " min / " + task.getBreakTime() + " min");
-        holder.tvDescription.setText("Duration: " + task.getWorkTime() + " mins focus, " + task.getBreakTime() + " mins break");
+        holder.chipDuration.setText(task.getWorkTime() + " min / " + task.getBreakTime() + " min / " + task.getLongBreakTime() + " min");
+        holder.tvDescription.setText("Duration: " + task.getWorkTime() + "m focus, " + task.getBreakTime() + "m short break, " + task.getLongBreakTime() + "m long break (every " + task.getLongBreakInterval() + " sessions)");
 
         boolean isSelected = selectedTaskIds.contains(task.getId());
         holder.cbSelect.setChecked(isSelected);

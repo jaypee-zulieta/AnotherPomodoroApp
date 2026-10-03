@@ -27,7 +27,7 @@ public class GeminiRecommendationService {
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public interface RecommendationCallback {
-        void onSuccess(String aiResponse, int workTime, int breakTime);
+        void onSuccess(String aiResponse, int workTime, int breakTime, int longBreakTime, int longBreakInterval);
         void onError(Throwable t);
     }
 
@@ -41,7 +41,7 @@ public class GeminiRecommendationService {
                 conn.setDoOutput(true);
 
                 StringBuilder promptBuilder = new StringBuilder();
-                promptBuilder.append("You are a helpful Pomodoro coach. When the user gives their task description, immediately respond conversationally and suggest an optimal work time and break time in minutes. Conclude your response by asking the user if they want to add more details or adjust these intervals. You must include the exact structured string format \"work: X, break: Y\" (where X and Y are numbers) somewhere in your message text response so the app can pre-fill input values.\n\n");
+                promptBuilder.append("You are a helpful Pomodoro coach. When the user gives their task description, immediately respond conversationally and suggest an optimal work time, short break time, long break time, and long break interval (number of sessions before a long break) in minutes. Conclude your response by asking the user if they want to add more details or adjust these intervals. You must include the exact structured string format \"work: X, break: Y, long_break: Z, interval: W\" (where X, Y, Z, and W are numbers) somewhere in your message text response so the app can pre-fill input values.\n\n");
                 promptBuilder.append("Chat History:\n");
                 for (ChatMessage msg : chatHistory) {
                     if (msg.isUser()) {
@@ -109,11 +109,19 @@ public class GeminiRecommendationService {
     private void parseAndCallback(String text, RecommendationCallback callback) {
         int workTime = -1;
         int breakTime = -1;
+        int longBreakTime = -1;
+        int longBreakInterval = -1;
         try {
             String cleanedText = text.toLowerCase().replaceAll("\\s+", "");
             if (cleanedText.contains("work:") && cleanedText.contains("break:")) {
                 workTime = extractNumberAfter(cleanedText, "work:");
                 breakTime = extractNumberAfter(cleanedText, "break:");
+            }
+            if (cleanedText.contains("long_break:")) {
+                longBreakTime = extractNumberAfter(cleanedText, "long_break:");
+            }
+            if (cleanedText.contains("interval:")) {
+                longBreakInterval = extractNumberAfter(cleanedText, "interval:");
             }
         } catch (Exception e) {
             Log.e(TAG, "Error parsing recommendation: " + text, e);
@@ -121,7 +129,9 @@ public class GeminiRecommendationService {
 
         int finalWorkTime = workTime;
         int finalBreakTime = breakTime;
-        mainHandler.post(() -> callback.onSuccess(text, finalWorkTime, finalBreakTime));
+        int finalLongBreakTime = longBreakTime;
+        int finalLongBreakInterval = longBreakInterval;
+        mainHandler.post(() -> callback.onSuccess(text, finalWorkTime, finalBreakTime, finalLongBreakTime, finalLongBreakInterval));
     }
 
     private int extractNumberAfter(String text, String key) {

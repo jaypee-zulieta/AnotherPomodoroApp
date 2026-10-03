@@ -6,10 +6,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.content.res.ColorStateList;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +26,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
 
-
 import java.util.Locale;
 
 public class TimerActivity extends AppCompatActivity {
@@ -34,9 +33,15 @@ public class TimerActivity extends AppCompatActivity {
     public static final String EXTRA_TASK_TITLE = "extra_task_title";
     public static final String EXTRA_WORK_TIME = "extra_work_time";
     public static final String EXTRA_BREAK_TIME = "extra_break_time";
+    public static final String EXTRA_LONG_BREAK_TIME = "extra_long_break_time";
+    public static final String EXTRA_LONG_BREAK_INTERVAL = "extra_long_break_interval";
     public static final String EXTRA_TASK_ID = "extra_task_id";
     public static final String EXTRA_OPEN_BREAK = "extra_open_break";
     public static final String ACTION_TIMER_UPDATED = "dev.jaypee.anotherpomodoroapp.action.TIMER_UPDATED";
+
+    public static final int MODE_FOCUS = 0;
+    public static final int MODE_SHORT_BREAK = 1;
+    public static final int MODE_LONG_BREAK = 2;
 
     private final BroadcastReceiver timerUpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -50,28 +55,36 @@ public class TimerActivity extends AppCompatActivity {
     // Static state to persist across activity pauses/destroys when navigating home
     private static long targetEndTimeMillis = 0;
     private static boolean staticTimerRunning = false;
-    private static boolean staticWorkMode = true;
+    private static int staticTimerMode = MODE_FOCUS;
     private static int staticWorkTimeMinutes = 25;
     private static int staticBreakTimeMinutes = 5;
+    private static int staticLongBreakTimeMinutes = 15;
+    private static int staticLongBreakInterval = 4;
+    private static int staticCompletedPomodoros = 0;
     private static String staticTaskTitle = "Pomodoro Session";
     private static String staticTaskId = "";
 
     private TextView tvCountdown;
     private Chip chipTimerMode;
+    private Chip chipSessionCounter;
     private CircularProgressView cpiTimer;
     private MaterialButton btnStartPause;
     private MaterialButton btnReset;
     private TextView tvWorkDuration;
     private TextView tvBreakDuration;
+    private TextView tvLongBreakDuration;
     private TextView tvTimerTaskTitle;
 
     private CountDownTimer countDownTimer;
     private long timeLeftInMillis;
     private boolean isTimerRunning = false;
-    private boolean isWorkMode = true;
+    private int timerMode = MODE_FOCUS;
 
     private int workTimeMinutes = 25;
     private int breakTimeMinutes = 5;
+    private int longBreakTimeMinutes = 15;
+    private int longBreakInterval = 4;
+    private int completedPomodoros = 0;
     private String taskTitle = "Pomodoro Session";
 
     @Override
@@ -100,6 +113,7 @@ public class TimerActivity extends AppCompatActivity {
 
         tvCountdown = findViewById(R.id.tv_countdown);
         chipTimerMode = findViewById(R.id.chip_timer_mode);
+        chipSessionCounter = findViewById(R.id.chip_session_counter);
         cpiTimer = findViewById(R.id.cpi_timer);
         tvTimerTaskTitle = findViewById(R.id.tv_timer_task_title);
         btnStartPause = findViewById(R.id.btn_start_pause);
@@ -107,6 +121,7 @@ public class TimerActivity extends AppCompatActivity {
         MaterialButton ibBack = findViewById(R.id.ib_back);
         tvWorkDuration = findViewById(R.id.tv_work_duration);
         tvBreakDuration = findViewById(R.id.tv_break_duration);
+        tvLongBreakDuration = findViewById(R.id.tv_long_break_duration);
 
         ibBack.setOnClickListener(v -> finish());
 
@@ -124,6 +139,8 @@ public class TimerActivity extends AppCompatActivity {
             taskToEdit.setTitle(taskTitle);
             taskToEdit.setWorkTime(workTimeMinutes);
             taskToEdit.setBreakTime(breakTimeMinutes);
+            taskToEdit.setLongBreakTime(longBreakTimeMinutes);
+            taskToEdit.setLongBreakInterval(longBreakInterval);
             taskToEdit.setUserId(userId);
             editIntent.putExtra(AddTaskActivity.EXTRA_TASK, taskToEdit);
             startActivity(editIntent);
@@ -155,6 +172,8 @@ public class TimerActivity extends AppCompatActivity {
             taskTitle = intent.getStringExtra(EXTRA_TASK_TITLE);
             workTimeMinutes = intent.getIntExtra(EXTRA_WORK_TIME, 25);
             breakTimeMinutes = intent.getIntExtra(EXTRA_BREAK_TIME, 5);
+            longBreakTimeMinutes = intent.getIntExtra(EXTRA_LONG_BREAK_TIME, 15);
+            longBreakInterval = intent.getIntExtra(EXTRA_LONG_BREAK_INTERVAL, 4);
             String incomingTaskId = intent.getStringExtra(EXTRA_TASK_ID);
             boolean openBreak = intent.getBooleanExtra(EXTRA_OPEN_BREAK, false);
 
@@ -165,48 +184,61 @@ public class TimerActivity extends AppCompatActivity {
                 taskTitle = staticTaskTitle;
                 workTimeMinutes = staticWorkTimeMinutes;
                 breakTimeMinutes = staticBreakTimeMinutes;
-                isWorkMode = staticWorkMode;
+                longBreakTimeMinutes = staticLongBreakTimeMinutes;
+                longBreakInterval = staticLongBreakInterval;
+                completedPomodoros = staticCompletedPomodoros;
+                timerMode = staticTimerMode;
                 long remaining = targetEndTimeMillis - System.currentTimeMillis();
                 if (remaining > 0) {
                     timeLeftInMillis = remaining;
                     isTimerRunning = true;
                 } else {
-                    // Timer already finished while in background — transition to next phase
-                    transitionToNextPhase();
+                    transitionToNextPhaseAuto();
                 }
             } else if (openBreak) {
-                isWorkMode = false;
-                timeLeftInMillis = breakTimeMinutes * 60 * 1000L;
+                completedPomodoros++;
+                boolean isLongBreak = (completedPomodoros > 0) && (completedPomodoros % longBreakInterval == 0);
+                timerMode = isLongBreak ? MODE_LONG_BREAK : MODE_SHORT_BREAK;
+                timeLeftInMillis = (isLongBreak ? longBreakTimeMinutes : breakTimeMinutes) * 60 * 1000L;
                 isTimerRunning = false;
                 staticTimerRunning = false;
-                staticWorkMode = false;
+                staticTimerMode = timerMode;
                 staticTaskTitle = taskTitle;
                 staticWorkTimeMinutes = workTimeMinutes;
                 staticBreakTimeMinutes = breakTimeMinutes;
+                staticLongBreakTimeMinutes = longBreakTimeMinutes;
+                staticLongBreakInterval = longBreakInterval;
+                staticCompletedPomodoros = completedPomodoros;
                 staticTaskId = incomingTaskId != null ? incomingTaskId : "";
             } else {
-                // New task or no timer running - start fresh
+                // New task or start fresh
                 staticTaskTitle = taskTitle;
                 staticWorkTimeMinutes = workTimeMinutes;
                 staticBreakTimeMinutes = breakTimeMinutes;
+                staticLongBreakTimeMinutes = longBreakTimeMinutes;
+                staticLongBreakInterval = longBreakInterval;
+                staticCompletedPomodoros = 0;
                 staticTaskId = incomingTaskId != null ? incomingTaskId : "";
                 staticTimerRunning = false;
-                staticWorkMode = true;
-                isWorkMode = true;
+                staticTimerMode = MODE_FOCUS;
+                timerMode = MODE_FOCUS;
+                completedPomodoros = 0;
                 timeLeftInMillis = workTimeMinutes * 60 * 1000L;
             }
         } else if (staticTimerRunning) {
             taskTitle = staticTaskTitle;
             workTimeMinutes = staticWorkTimeMinutes;
             breakTimeMinutes = staticBreakTimeMinutes;
-            isWorkMode = staticWorkMode;
+            longBreakTimeMinutes = staticLongBreakTimeMinutes;
+            longBreakInterval = staticLongBreakInterval;
+            completedPomodoros = staticCompletedPomodoros;
+            timerMode = staticTimerMode;
             long remaining = targetEndTimeMillis - System.currentTimeMillis();
             if (remaining > 0) {
                 timeLeftInMillis = remaining;
                 isTimerRunning = true;
             } else {
-                // Timer already finished while in background — transition to next phase
-                transitionToNextPhase();
+                transitionToNextPhaseAuto();
             }
         } else {
             timeLeftInMillis = workTimeMinutes * 60 * 1000L;
@@ -214,9 +246,10 @@ public class TimerActivity extends AppCompatActivity {
 
         if (tvTimerTaskTitle != null) {
             tvTimerTaskTitle.setText(taskTitle);
-            chipTimerMode.setText(isWorkMode ? R.string.focus_time : R.string.break_time);
-            tvWorkDuration.setText(workTimeMinutes + " min");
-            tvBreakDuration.setText(breakTimeMinutes + " min");
+            updateHeaderUI();
+            if (tvWorkDuration != null) tvWorkDuration.setText(workTimeMinutes + " min");
+            if (tvBreakDuration != null) tvBreakDuration.setText(breakTimeMinutes + " min");
+            if (tvLongBreakDuration != null) tvLongBreakDuration.setText(longBreakTimeMinutes + " min");
             updateCountDownText();
             updateProgress();
             updateRingColor();
@@ -242,15 +275,19 @@ public class TimerActivity extends AppCompatActivity {
             long remaining = targetEndTimeMillis - System.currentTimeMillis();
             if (remaining > 0) {
                 timeLeftInMillis = remaining;
-                isWorkMode = staticWorkMode;
+                timerMode = staticTimerMode;
                 taskTitle = staticTaskTitle;
                 workTimeMinutes = staticWorkTimeMinutes;
                 breakTimeMinutes = staticBreakTimeMinutes;
+                longBreakTimeMinutes = staticLongBreakTimeMinutes;
+                longBreakInterval = staticLongBreakInterval;
+                completedPomodoros = staticCompletedPomodoros;
                 if (tvTimerTaskTitle != null) {
                     tvTimerTaskTitle.setText(taskTitle);
-                    chipTimerMode.setText(isWorkMode ? R.string.focus_time : R.string.break_time);
-                    tvWorkDuration.setText(workTimeMinutes + " min");
-                    tvBreakDuration.setText(breakTimeMinutes + " min");
+                    updateHeaderUI();
+                    if (tvWorkDuration != null) tvWorkDuration.setText(workTimeMinutes + " min");
+                    if (tvBreakDuration != null) tvBreakDuration.setText(breakTimeMinutes + " min");
+                    if (tvLongBreakDuration != null) tvLongBreakDuration.setText(longBreakTimeMinutes + " min");
                     updateCountDownText();
                     updateProgress();
                     updateRingColor();
@@ -262,8 +299,7 @@ public class TimerActivity extends AppCompatActivity {
                 }
                 startCountdown(timeLeftInMillis);
             } else {
-                // Timer already finished while in background — transition to next phase
-                transitionToNextPhase();
+                transitionToNextPhaseAuto();
             }
         }
     }
@@ -283,11 +319,13 @@ public class TimerActivity extends AppCompatActivity {
     private void startTimer() {
         targetEndTimeMillis = System.currentTimeMillis() + timeLeftInMillis;
         staticTimerRunning = true;
-        staticWorkMode = isWorkMode;
+        staticTimerMode = timerMode;
         staticTaskTitle = taskTitle;
         staticWorkTimeMinutes = workTimeMinutes;
         staticBreakTimeMinutes = breakTimeMinutes;
-        // staticTaskId is already set in onCreate
+        staticLongBreakTimeMinutes = longBreakTimeMinutes;
+        staticLongBreakInterval = longBreakInterval;
+        staticCompletedPomodoros = completedPomodoros;
 
         startCountdown(timeLeftInMillis);
         isTimerRunning = true;
@@ -325,40 +363,76 @@ public class TimerActivity extends AppCompatActivity {
         playAlarmAndVibrate();
         cancelAlarm();
 
-        if (isWorkMode) {
+        if (timerMode == MODE_FOCUS) {
+            completedPomodoros++;
+            staticCompletedPomodoros = completedPomodoros;
+
+            boolean isLongBreak = (completedPomodoros > 0) && (completedPomodoros % longBreakInterval == 0);
+            int nextMode = isLongBreak ? MODE_LONG_BREAK : MODE_SHORT_BREAK;
+
             Intent alarmIntent = new Intent(this, PomodoroAlarmReceiver.class);
             alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_TITLE, taskTitle);
             alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_WORK_TIME, workTimeMinutes);
             alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_BREAK_TIME, breakTimeMinutes);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_LONG_BREAK_TIME, longBreakTimeMinutes);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_LONG_BREAK_INTERVAL, longBreakInterval);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_COMPLETED_POMODOROS, completedPomodoros);
             alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_ID, staticTaskId);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_TIMER_MODE, MODE_FOCUS);
             sendBroadcast(alarmIntent);
 
-            Toast.makeText(TimerActivity.this, "Focus session finished! Time for a break.", Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(TimerActivity.this, "Break finished! Back to focus.", Toast.LENGTH_LONG).show();
-        }
+            if (isLongBreak) {
+                Toast.makeText(TimerActivity.this, "Focus session finished! Time for a Long Break.", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(TimerActivity.this, "Focus session finished! Time for a break.", Toast.LENGTH_LONG).show();
+            }
 
-        transitionToNextPhase();
+            transitionToNextPhase(nextMode);
+        } else {
+            Intent alarmIntent = new Intent(this, PomodoroAlarmReceiver.class);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_TITLE, taskTitle);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_WORK_TIME, workTimeMinutes);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_BREAK_TIME, breakTimeMinutes);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_LONG_BREAK_TIME, longBreakTimeMinutes);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_LONG_BREAK_INTERVAL, longBreakInterval);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_COMPLETED_POMODOROS, completedPomodoros);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_ID, staticTaskId);
+            alarmIntent.putExtra(PomodoroAlarmReceiver.EXTRA_TIMER_MODE, timerMode);
+            sendBroadcast(alarmIntent);
+
+            Toast.makeText(TimerActivity.this, "Break finished! Back to focus.", Toast.LENGTH_LONG).show();
+
+            transitionToNextPhase(MODE_FOCUS);
+        }
     }
 
-    /**
-     * Transitions to the next timer phase (work <-> break) without triggering
-     * alarms, toasts, or broadcasts. Used when restoring state after the timer
-     * has already expired while the activity was in the background.
-     */
-    private void transitionToNextPhase() {
-        if (isWorkMode) {
-            isWorkMode = false;
-            chipTimerMode.setText(R.string.break_time);
+    private void transitionToNextPhaseAuto() {
+        if (timerMode == MODE_FOCUS) {
+            completedPomodoros++;
+            staticCompletedPomodoros = completedPomodoros;
+            boolean isLongBreak = (completedPomodoros > 0) && (completedPomodoros % longBreakInterval == 0);
+            transitionToNextPhase(isLongBreak ? MODE_LONG_BREAK : MODE_SHORT_BREAK);
+        } else {
+            transitionToNextPhase(MODE_FOCUS);
+        }
+    }
+
+    private void transitionToNextPhase(int nextMode) {
+        timerMode = nextMode;
+        staticTimerMode = timerMode;
+
+        if (timerMode == MODE_FOCUS) {
+            timeLeftInMillis = workTimeMinutes * 60 * 1000L;
+        } else if (timerMode == MODE_SHORT_BREAK) {
             timeLeftInMillis = breakTimeMinutes * 60 * 1000L;
         } else {
-            isWorkMode = true;
-            chipTimerMode.setText(R.string.focus_time);
-            timeLeftInMillis = workTimeMinutes * 60 * 1000L;
+            timeLeftInMillis = longBreakTimeMinutes * 60 * 1000L;
         }
+
         isTimerRunning = false;
         staticTimerRunning = false;
         btnStartPause.setText(R.string.start);
+        updateHeaderUI();
         updateCountDownText();
         updateProgress();
         updateRingColor();
@@ -381,9 +455,12 @@ public class TimerActivity extends AppCompatActivity {
         }
         isTimerRunning = false;
         staticTimerRunning = false;
-        isWorkMode = true;
-        chipTimerMode.setText(R.string.focus_time);
+        timerMode = MODE_FOCUS;
+        staticTimerMode = MODE_FOCUS;
+        completedPomodoros = 0;
+        staticCompletedPomodoros = 0;
         timeLeftInMillis = workTimeMinutes * 60 * 1000L;
+        updateHeaderUI();
         updateCountDownText();
         updateProgress();
         updateRingColor();
@@ -392,33 +469,46 @@ public class TimerActivity extends AppCompatActivity {
         cancelAlarm();
     }
 
-    public static void startTimerFromBackground(Context context, String taskTitle, int workTime, int breakTime, String taskId, boolean isWorkMode) {
-        int durationMinutes = isWorkMode ? workTime : breakTime;
+    public static void startTimerFromBackground(Context context, String taskTitle, int workTime, int breakTime, int longBreakTime, int longBreakInterval, int completedPomodoros, String taskId, int nextTimerMode) {
+        int durationMinutes;
+        if (nextTimerMode == MODE_FOCUS) {
+            durationMinutes = workTime;
+        } else if (nextTimerMode == MODE_SHORT_BREAK) {
+            durationMinutes = breakTime;
+        } else {
+            durationMinutes = longBreakTime;
+        }
         long durationMillis = durationMinutes * 60 * 1000L;
 
         targetEndTimeMillis = System.currentTimeMillis() + durationMillis;
         staticTimerRunning = true;
-        staticWorkMode = isWorkMode;
+        staticTimerMode = nextTimerMode;
         staticWorkTimeMinutes = workTime;
         staticBreakTimeMinutes = breakTime;
+        staticLongBreakTimeMinutes = longBreakTime;
+        staticLongBreakInterval = longBreakInterval;
+        staticCompletedPomodoros = completedPomodoros;
         staticTaskTitle = taskTitle != null ? taskTitle : "Pomodoro Session";
         staticTaskId = taskId != null ? taskId : "";
 
-        scheduleAlarmForTimer(context, targetEndTimeMillis, staticTaskTitle, workTime, breakTime, staticTaskId, isWorkMode);
+        scheduleAlarmForTimer(context, targetEndTimeMillis, staticTaskTitle, workTime, breakTime, longBreakTime, longBreakInterval, completedPomodoros, staticTaskId, nextTimerMode);
 
         Intent updateIntent = new Intent(ACTION_TIMER_UPDATED);
         updateIntent.setPackage(context.getPackageName());
         context.sendBroadcast(updateIntent);
     }
 
-    public static void scheduleAlarmForTimer(Context context, long targetEndMillis, String title, int workTime, int breakTime, String taskId, boolean isWorkMode) {
+    public static void scheduleAlarmForTimer(Context context, long targetEndMillis, String title, int workTime, int breakTime, int longBreakTime, int longBreakInterval, int completedPomodoros, String taskId, int timerMode) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, PomodoroAlarmReceiver.class);
         intent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_TITLE, title);
         intent.putExtra(PomodoroAlarmReceiver.EXTRA_WORK_TIME, workTime);
         intent.putExtra(PomodoroAlarmReceiver.EXTRA_BREAK_TIME, breakTime);
+        intent.putExtra(PomodoroAlarmReceiver.EXTRA_LONG_BREAK_TIME, longBreakTime);
+        intent.putExtra(PomodoroAlarmReceiver.EXTRA_LONG_BREAK_INTERVAL, longBreakInterval);
+        intent.putExtra(PomodoroAlarmReceiver.EXTRA_COMPLETED_POMODOROS, completedPomodoros);
         intent.putExtra(PomodoroAlarmReceiver.EXTRA_TASK_ID, taskId);
-        intent.putExtra(PomodoroAlarmReceiver.EXTRA_IS_WORK_MODE, isWorkMode);
+        intent.putExtra(PomodoroAlarmReceiver.EXTRA_TIMER_MODE, timerMode);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
                 0,
@@ -459,11 +549,32 @@ public class TimerActivity extends AppCompatActivity {
     }
 
     private void scheduleAlarm() {
-        scheduleAlarmForTimer(this, targetEndTimeMillis, taskTitle, workTimeMinutes, breakTimeMinutes, staticTaskId, isWorkMode);
+        scheduleAlarmForTimer(this, targetEndTimeMillis, taskTitle, workTimeMinutes, breakTimeMinutes, longBreakTimeMinutes, longBreakInterval, completedPomodoros, staticTaskId, timerMode);
     }
 
     private void cancelAlarm() {
         cancelAlarm(this);
+    }
+
+    private void updateHeaderUI() {
+        if (chipTimerMode != null) {
+            if (timerMode == MODE_FOCUS) {
+                chipTimerMode.setText(R.string.focus_time);
+            } else if (timerMode == MODE_SHORT_BREAK) {
+                chipTimerMode.setText(R.string.break_time);
+            } else {
+                chipTimerMode.setText(R.string.long_break_time);
+            }
+        }
+        if (chipSessionCounter != null) {
+            int currentInCycle = (completedPomodoros % longBreakInterval) + 1;
+            if (timerMode != MODE_FOCUS) {
+                int shownCount = (completedPomodoros % longBreakInterval == 0) ? longBreakInterval : (completedPomodoros % longBreakInterval);
+                chipSessionCounter.setText(String.format(Locale.getDefault(), "Completed %d/%d", shownCount, longBreakInterval));
+            } else {
+                chipSessionCounter.setText(String.format(Locale.getDefault(), "Session %d of %d", currentInCycle, longBreakInterval));
+            }
+        }
     }
 
     private void updateCountDownText() {
@@ -474,7 +585,14 @@ public class TimerActivity extends AppCompatActivity {
     }
 
     private void updateProgress() {
-        long totalTime = isWorkMode ? workTimeMinutes * 60 * 1000L : breakTimeMinutes * 60 * 1000L;
+        long totalTime;
+        if (timerMode == MODE_FOCUS) {
+            totalTime = workTimeMinutes * 60 * 1000L;
+        } else if (timerMode == MODE_SHORT_BREAK) {
+            totalTime = breakTimeMinutes * 60 * 1000L;
+        } else {
+            totalTime = longBreakTimeMinutes * 60 * 1000L;
+        }
         if (totalTime > 0) {
             int progress = (int) ((timeLeftInMillis * 100) / totalTime);
             cpiTimer.setProgress(progress);
@@ -482,27 +600,40 @@ public class TimerActivity extends AppCompatActivity {
     }
 
     private void updateRingColor() {
-        int colorRes = isWorkMode ? R.color.focus_accent : R.color.break_accent;
+        int colorRes;
+        if (timerMode == MODE_FOCUS) {
+            colorRes = R.color.focus_accent;
+        } else if (timerMode == MODE_SHORT_BREAK) {
+            colorRes = R.color.break_accent;
+        } else {
+            colorRes = R.color.long_break_accent;
+        }
         cpiTimer.setColor(getResources().getColor(colorRes, getTheme()));
     }
 
     private void updateThemeColors() {
-        if (isWorkMode) {
-            // Focus mode - use default theme colors
+        if (timerMode == MODE_FOCUS) {
             chipTimerMode.setChipBackgroundColorResource(R.color.md_sys_color_primary_container);
             chipTimerMode.setTextColor(getResources().getColor(R.color.md_sys_color_on_primary_container, getTheme()));
             btnStartPause.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.focus_accent, getTheme())));
             btnStartPause.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.white, getTheme())));
             btnReset.setTextColor(getResources().getColor(R.color.focus_accent, getTheme()));
             btnReset.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.focus_accent, getTheme())));
-        } else {
-            // Break mode - use cool blue colors
+        } else if (timerMode == MODE_SHORT_BREAK) {
             chipTimerMode.setChipBackgroundColorResource(R.color.break_accent_container);
             chipTimerMode.setTextColor(getResources().getColor(R.color.break_accent_on_container, getTheme()));
             btnStartPause.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.break_accent, getTheme())));
             btnStartPause.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.white, getTheme())));
             btnReset.setTextColor(getResources().getColor(R.color.break_accent, getTheme()));
             btnReset.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.break_accent, getTheme())));
+        } else {
+            // Long Break Mode
+            chipTimerMode.setChipBackgroundColorResource(R.color.long_break_accent_container);
+            chipTimerMode.setTextColor(getResources().getColor(R.color.long_break_accent_on_container, getTheme()));
+            btnStartPause.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.long_break_accent, getTheme())));
+            btnStartPause.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.white, getTheme())));
+            btnReset.setTextColor(getResources().getColor(R.color.long_break_accent, getTheme()));
+            btnReset.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.long_break_accent, getTheme())));
         }
     }
 

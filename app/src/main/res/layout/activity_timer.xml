@@ -82,20 +82,41 @@
                 app:layout_constraintBottom_toBottomOf="@id/ib_edit_task"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- Mode Badge -->
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_timer_mode"
-                style="@style/Widget.Material3.Chip.Assist"
-                android:layout_width="wrap_content"
+            <!-- Mode & Session Chips -->
+            <LinearLayout
+                android:id="@+id/ll_timer_header_chips"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="@string/focus_time"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                app:chipBackgroundColor="?attr/colorPrimaryContainer"
-                app:chipCornerRadius="20dp"
-                app:chipMinHeight="36dp"
+                android:orientation="horizontal"
                 app:layout_constraintTop_toBottomOf="@id/ib_back"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_timer_mode"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/focus_time"
+                    android:textColor="?attr/colorOnPrimaryContainer"
+                    app:chipBackgroundColor="?attr/colorPrimaryContainer"
+                    app:chipCornerRadius="20dp"
+                    app:chipMinHeight="36dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_session_counter"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Session 1 of 4"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    app:chipBackgroundColor="?attr/colorSurfaceVariant"
+                    app:chipCornerRadius="20dp"
+                    app:chipMinHeight="36dp" />
+
+            </LinearLayout>
 
             <!-- Task Title -->
             <TextView
@@ -110,7 +131,7 @@
                 android:fontFamily="sans-serif"
                 android:maxLines="2"
                 android:ellipsize="end"
-                app:layout_constraintTop_toBottomOf="@id/chip_timer_mode"
+                app:layout_constraintTop_toBottomOf="@id/ll_timer_header_chips"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
@@ -172,16 +193,16 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:paddingHorizontal="16dp">
+                    android:paddingHorizontal="4dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/work_duration"
                         android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:fontFamily="sans-serif-medium"
-                        android:letterSpacing="0.05"
+                        android:letterSpacing="0.03"
                         android:textAllCaps="true" />
 
                     <TextView
@@ -191,14 +212,14 @@
                         android:layout_marginTop="4dp"
                         android:text="25 min"
                         android:textColor="?attr/colorOnSurface"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:fontFamily="sans-serif-medium" />
                 </LinearLayout>
 
                 <View
                     android:layout_width="1dp"
-                    android:layout_height="40dp"
-                    android:layout_marginHorizontal="16dp"
+                    android:layout_height="36dp"
+                    android:layout_marginHorizontal="8dp"
                     android:background="?attr/colorOutlineVariant" />
 
                 <LinearLayout
@@ -207,16 +228,16 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:paddingHorizontal="16dp">
+                    android:paddingHorizontal="4dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/break_duration"
                         android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:fontFamily="sans-serif-medium"
-                        android:letterSpacing="0.05"
+                        android:letterSpacing="0.03"
                         android:textAllCaps="true" />
 
                     <TextView
@@ -226,7 +247,42 @@
                         android:layout_marginTop="4dp"
                         android:text="5 min"
                         android:textColor="?attr/colorOnSurface"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="36dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:background="?attr/colorOutlineVariant" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/long_break_duration"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.03"
+                        android:textAllCaps="true" />
+
+                    <TextView
+                        android:id="@+id/tv_long_break_duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="15 min"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="16sp"
                         android:fontFamily="sans-serif-medium" />
                 </LinearLayout>
             </LinearLayout>

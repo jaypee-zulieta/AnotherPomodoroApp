@@ -68,4 +68,7 @@
     <color name="break_accent">#1565C0</color>
     <color name="break_accent_container">#BBDEFB</color>
     <color name="break_accent_on_container">#0D47A1</color>
+    <color name="long_break_accent">#2E7D32</color>
+    <color name="long_break_accent_container">#C8E6C9</color>
+    <color name="long_break_accent_on_container">#1B5E20</color>
 </resources>
