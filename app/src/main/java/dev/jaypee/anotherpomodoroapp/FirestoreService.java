@@ -2,11 +2,13 @@ package dev.jaypee.anotherpomodoroapp;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 public class FirestoreService {
 
@@ -39,6 +41,26 @@ public class FirestoreService {
                 .document(taskId)
                 .delete()
                 .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    public void deleteAllUserTasks(String userId, OnSuccessListener<Void> successListener, OnFailureListener failureListener) {
+        db.collection("tasks")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        successListener.onSuccess(null);
+                        return;
+                    }
+                    WriteBatch batch = db.batch();
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        batch.delete(document.getReference());
+                    }
+                    batch.commit()
+                            .addOnSuccessListener(successListener)
+                            .addOnFailureListener(failureListener);
+                })
                 .addOnFailureListener(failureListener);
     }
 }

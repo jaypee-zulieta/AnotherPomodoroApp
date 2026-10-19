@@ -75,4 +75,11 @@
     <string name="profile_focus_time">Focus Time</string>
     <string name="back_to_home">Back to Home</string>
     <string name="select_all">Select All</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="confirm_delete_account_title">Delete Account?</string>
+    <string name="confirm_delete_account_message">Are you sure you want to delete your account? This action is permanent and will delete all of your tasks.</string>
+    <string name="account_deleted_success">Account and all tasks deleted successfully.</string>
+    <string name="reauth_required_message">For security reasons, please log in again before deleting your account.</string>
+    <string name="delete_account_failed">Failed to delete account: %s</string>
+    <string name="deleting_account">Deleting account…</string>
 </resources>
